@@ -152,7 +152,7 @@ void Game::ActivateNextState()
 	    && nextStateIdx != -1 )
 	{
 		// Load the state or die
-		if( nextStateIdx >= allStates.size() || allStates[nextStateIdx] == nullptr )
+		if( nextStateIdx >= (int)allStates.size() || allStates[nextStateIdx] == nullptr )
 		{
 			cerr << "Activated out of range or nullptr state with the index: " << nextStateIdx << endl;
 			exit( 11 );

@@ -1,29 +1,24 @@
 #pragma once
 
-#include <array>
-#include <algorithm>
-
+#include <cmath>
 #include <cstdarg>
 #include <cstddef>
-#include <cmath>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
+#include <iostream>
 #include <memory>
 #include <sstream>
-#include <iostream>
 #include <string>
 #include <vector>
 
 #include <SDL_stdinc.h>
-
 #include <SDL_error.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
 #include <SDL_video.h>
-
 #include <SDL_ttf.h>
-
 #include <SDL_image.h>
 
 using uint  = unsigned int;
