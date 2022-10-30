@@ -4,6 +4,18 @@
 
 #include "gamebase.h"
 
+class ExampleGame;
+class ExampleState;
+class ExampleState2;
+
+class ExampleGame final : public Game
+{
+public:
+	ExampleGame();
+
+	bool HandleEvent( const Event event ) override;
+};
+
 class ExampleState : public GameState
 {
 protected:
@@ -45,12 +57,4 @@ public:
 	using ExampleState::ExampleState;
 
 	void Init() override;
-};
-
-class ExampleGame final : public Game
-{
-public:
-	ExampleGame();
-
-	bool HandleEvent( const Event event ) override;
 };
