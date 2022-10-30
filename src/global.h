@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <SDL_stdinc.h>
 
