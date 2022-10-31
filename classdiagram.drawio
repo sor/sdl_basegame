@@ -1,10 +1,10 @@
 <mxfile host="65bd71144e">
     <diagram id="UBITVOTv7EuB15pHwEIP" name="Page-1">
-        <mxGraphModel dx="609" dy="1007" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="4681" math="0" shadow="0">
+        <mxGraphModel dx="548" dy="906" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="4681" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="52" value="" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=#FFFFFF;fillColor=default;gradientColor=none;strokeColor=none;" vertex="1" parent="1">
+                <mxCell id="52" value="" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=#FFFFFF;fillColor=default;gradientColor=none;strokeColor=none;" parent="1" vertex="1">
                     <mxGeometry x="140" y="250" width="500" height="1320" as="geometry"/>
                 </mxCell>
                 <mxCell id="24" value="# currentState" style="edgeStyle=none;html=1;" parent="1" source="2" target="6" edge="1">
@@ -93,31 +93,34 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="6" value="GameState" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;gradientColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="180" y="400" width="410" height="216" as="geometry"/>
+                    <mxGeometry x="180" y="400" width="410" height="242" as="geometry"/>
                 </mxCell>
                 <mxCell id="10" value="# render: SDL_Renderer&amp;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
                     <mxGeometry y="26" width="410" height="26" as="geometry"/>
                 </mxCell>
+                <mxCell id="53" value="# game: Game&amp;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="6">
+                    <mxGeometry y="52" width="410" height="26" as="geometry"/>
+                </mxCell>
                 <mxCell id="8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="6" vertex="1">
-                    <mxGeometry y="52" width="410" height="8" as="geometry"/>
+                    <mxGeometry y="78" width="410" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="9" value="+ GameState(game: Game&amp;, render: SDL_Renderer*)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
-                    <mxGeometry y="60" width="410" height="26" as="geometry"/>
-                </mxCell>
-                <mxCell id="13" value="+ ~ GameState()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
                     <mxGeometry y="86" width="410" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="14" value="+  isFPSLimited(): bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
+                <mxCell id="13" value="+ ~ GameState()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
                     <mxGeometry y="112" width="410" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="15" value="+ Events(frame: uint32_t, totalMSec: uint32_t, deltaT: float): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
+                <mxCell id="14" value="+  isFPSLimited(): bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
                     <mxGeometry y="138" width="410" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="16" value="+ Update(frame: uint32_t, totalMSec: uint32_t, deltaT: float): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
+                <mxCell id="15" value="+ Events(frame: uint32_t, totalMSec: uint32_t, deltaT: float): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
                     <mxGeometry y="164" width="410" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="+ Render(frame: uint32_t, totalMSec: uint32_t, deltaT: float): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
+                <mxCell id="16" value="+ Update(frame: uint32_t, totalMSec: uint32_t, deltaT: float): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
                     <mxGeometry y="190" width="410" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="+ Render(frame: uint32_t, totalMSec: uint32_t, deltaT: float): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="6" vertex="1">
+                    <mxGeometry y="216" width="410" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="37" value="&lt;&lt;enumeration&gt;&gt; PerformanceDrawMode" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;labelBorderColor=none;" parent="1" vertex="1">
                     <mxGeometry x="260" y="1450" width="260" height="88" as="geometry">
