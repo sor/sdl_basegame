@@ -12,3 +12,8 @@ A skeleton project to start your SDL2 journey
     - Can dynamically load and unload it's assets etc. on activation/deactivation with Init() and UnInit()
 
 Either Game and GameState can initiate a state switch by calling SetNextState( number ) or game.SetNextState( number ), the change will happen after the frame has finished processing.
+
+# Classdiagram
+
+Classdiagram outlining base classes and their relations
+![Classdiagram](./classdiagram.png)
