@@ -9,7 +9,8 @@ add_executable(sdl_basegame
     src/gamebase.h
     src/examplegame.h
     src/gamebase.cpp
-    src/examplegame.cpp)
+    src/examplegame.cpp
+    src/recthelper.h)
 
 include(FindPkgConfig)
 

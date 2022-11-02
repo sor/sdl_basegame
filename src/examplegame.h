@@ -3,6 +3,7 @@
 #include "global.h"
 
 #include "gamebase.h"
+#include "recthelper.h"
 
 class ExampleGame;
 class ExampleState;
@@ -28,6 +29,7 @@ protected:
 	static constexpr const Color black { 0, 0, 0, 255 };
 
 	static constexpr const Array<Point,8> shadowOffsets = {
+		/*
 		Point { -1, -1 },
 		Point { +1, -1 },
 		Point { -1, +1 },
@@ -36,6 +38,15 @@ protected:
 		Point { +2, +0 },
 		Point { +0, -2 },
 		Point { -2, +0 },
+		*/
+		1_up   + 1_left,
+		1_up   + 1_right,
+		1_down + 1_left,
+		1_down + 1_right,
+		2_right,
+		2_left,
+		2_up,
+		2_down,
 	};
 
 public:

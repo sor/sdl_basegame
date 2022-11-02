@@ -77,7 +77,8 @@ bool Game::HandleEvent( const Event event )
 {
 	switch( event.type )
 	{
-		case SDL_QUIT: isRunning = false;
+		case SDL_QUIT:
+			isRunning = false;
 			return true;
 			break;
 

@@ -1,7 +1,7 @@
 #include "examplegame.h"
 
 ExampleGame::ExampleGame()
-	: Game( "Example SDL Game", Point{ 1280, 960 } )
+	: Game( "Example SDL Game", Point{ 1280, 960 }, false )
 {
 	// Will be freed in Game dtor
 	allStates = {
@@ -141,7 +141,8 @@ void ExampleState::Render( const u32 frame, const u32 totalMSec, const float del
 		constexpr const Point p { 32, 50 };
 		for( const Point & pd : shadowOffsets )
 		{
-			const Rect dst_rect = { p.x + pd.x, p.y + pd.y, blendedTextSize.x, blendedTextSize.y };
+			const Rect dst_rect_new_method = p + pd + Rect{ 0, 0, blendedTextSize.x, blendedTextSize.y };
+			const Rect dst_rect = Rect{ p.x + pd.x, p.y + pd.y, blendedTextSize.x, blendedTextSize.y };
 			SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
 		}
 
