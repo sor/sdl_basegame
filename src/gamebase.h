@@ -20,6 +20,8 @@ protected:
 	GameState * currentState = nullptr;
 	Vector<GameState *> allStates;
 
+    Point windowSize;
+
 public:
 	[[nodiscard]]
 	bool IsRunning() const { return isRunning; }
@@ -34,6 +36,8 @@ public:
 	virtual int Run();
 
 	virtual void SetNextState( int index ) { nextStateIdx = index; }
+
+    Point getWindowSize(){ return windowSize; }
 
 protected:
 	virtual void ActivateNextState();

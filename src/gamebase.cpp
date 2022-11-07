@@ -112,6 +112,7 @@ int Game::Run()
 	while( IsRunning() )
 	{
 		start = Clock::now();
+        SDL_GetWindowSize(window, &windowSize.x, &windowSize.y);
 
 		ActivateNextState();
 
