@@ -15,11 +15,17 @@ constexpr Point  operator/  (const Point lhs, const int rhs) { return Point{ lhs
 constexpr Point  operator*  (const Point lhs, const int rhs) { return Point{ lhs.x * rhs, lhs.y * rhs }; }
 constexpr Point& operator+= (Point& lhs, const Point rhs) { lhs = lhs + rhs; return lhs; }
 constexpr Point& operator-= (Point& lhs, const Point rhs) { lhs = lhs - rhs; return lhs; }
+constexpr Point& operator/= (Point& lhs, const int rhs) { lhs = lhs / rhs; return lhs; }
+constexpr Point& operator*= (Point& lhs, const int rhs) { lhs = lhs * rhs; return lhs; }
 constexpr Rect   operator+  (const Point lhs, const Rect rhs) { return Rect{ lhs.x + rhs.x, lhs.y + rhs.y, rhs.w, rhs.h }; }
 constexpr Rect   operator+  (const Rect lhs, const Point rhs) { return Rect{ lhs.x + rhs.x, lhs.y + rhs.y, lhs.w, lhs.h }; }
 constexpr Rect   operator-  (const Rect lhs, const Point rhs) { return Rect{ lhs.x - rhs.x, lhs.y - rhs.y, lhs.w, lhs.h }; }
+constexpr Rect   operator/  (const Rect lhs, const int rhs) { return Rect{ lhs.x, lhs.y, lhs.w / rhs, lhs.h / rhs }; }
+constexpr Rect   operator*  (const Rect lhs, const int rhs) { return Rect{ lhs.x, lhs.y, lhs.w * rhs, lhs.h * rhs }; }
 constexpr Rect&  operator+= (Rect& lhs, const Point rhs) { lhs = lhs + rhs; return lhs; }
 constexpr Rect&  operator-= (Rect& lhs, const Point rhs) { lhs = lhs - rhs; return lhs; }
+constexpr Rect&  operator/= (Rect& lhs, const int rhs) { lhs = lhs / rhs; return lhs; }
+constexpr Rect&  operator*= (Rect& lhs, const int rhs) { lhs = lhs * rhs; return lhs; }
 constexpr Rect   operator+  (const Rect lhs, const Rect rhs) { return Rect{ lhs.x + rhs.x, lhs.y + rhs.y, lhs.w + rhs.w, lhs.h + rhs.h }; }
 constexpr Rect   operator-  (const Rect lhs, const Rect rhs) { return Rect{ lhs.x - rhs.x, lhs.y - rhs.y, lhs.w - rhs.w, lhs.h - rhs.h }; }
 constexpr Rect&  operator+= (Rect& lhs, const Rect rhs) { lhs = lhs + rhs; return lhs; }

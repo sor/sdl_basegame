@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 project(sdl_basegame)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_executable(sdl_basegame
     src/main.cpp

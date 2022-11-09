@@ -112,7 +112,6 @@ int Game::Run()
 	while( IsRunning() )
 	{
 		start = Clock::now();
-        SDL_GetWindowSize(window, &windowSize.x, &windowSize.y);
 
 		ActivateNextState();
 
@@ -123,9 +122,13 @@ int Game::Run()
 
 		const u32 totalMSec = SDL_GetTicks();
 
+		SDL_GetWindowSize(window, &windowSize.x, &windowSize.y);
+
 		currentState->Events( frame, totalMSec, deltaTF );
 		currentState->Update( frame, totalMSec, deltaTF );
 		currentState->Render( frame, totalMSec, deltaTFNeeded );
+
+		SDL_RenderPresent( render );
 
 		deltaTNeeded = Clock::now() - start;
 

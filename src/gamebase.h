@@ -20,7 +20,7 @@ protected:
 	GameState * currentState = nullptr;
 	Vector<GameState *> allStates;
 
-    Point windowSize;
+	Point windowSize;
 
 public:
 	[[nodiscard]]
@@ -37,7 +37,7 @@ public:
 
 	virtual void SetNextState( int index ) { nextStateIdx = index; }
 
-    Point getWindowSize(){ return windowSize; }
+	const Point & GetWindowSize() { return windowSize; }
 
 protected:
 	virtual void ActivateNextState();

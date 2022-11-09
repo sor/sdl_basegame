@@ -22,8 +22,9 @@
 #include <SDL_image.h>
 
 using uint  = unsigned int;
-using i32   = int32_t;
-using u32   = uint32_t;
+using u8    = std::uint8_t;
+using i32   = std::int32_t;
+using u32   = std::uint32_t;
 
 using Color     = SDL_Color;
 using Event     = SDL_Event;
