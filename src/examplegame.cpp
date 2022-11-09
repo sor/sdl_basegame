@@ -49,13 +49,13 @@ void ExampleState::Init()
 {
 	if( !font )
 	{
-		font = TTF_OpenFont( "../asset/font/RobotoSlab-Bold.ttf", 24 );
+		font = TTF_OpenFont( BasePath "asset/font/RobotoSlab-Bold.ttf", 24 );
 		TTF_SetFontHinting( font, TTF_HINTING_LIGHT );
 	}
 
 	if( !image )
 	{
-		image = IMG_LoadTexture( render, "../asset/graphic/background.png" );
+		image = IMG_LoadTexture( render, BasePath "asset/graphic/background.png" );
 	}
 }
 
@@ -144,15 +144,16 @@ void ExampleState::Render( const u32 frame, const u32 totalMSec, const float del
 			SDL_QueryTexture( blendedText, &fmt, &access, &blendedTextSize.x, &blendedTextSize.y );
 		}
 
-		SDL_SetTextureColorMod( blendedText, 0, 0, 0 );
-		constexpr const Point p { 32, 50 };
-		for( const Point & pd : shadowOffsets )
+		// Draw the text on top
 		{
-			const Rect dst_rect = Rect{ p.x + pd.x, p.y + pd.y, blendedTextSize.x, blendedTextSize.y };
-			SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
-		}
+			constexpr const Point p { 32, 50 };
+			SDL_SetTextureColorMod( blendedText, 0, 0, 0 );
+			for( const Point & pd : shadowOffsets )
+			{
+				const Rect dst_rect = Rect{ p.x + pd.x, p.y + pd.y, blendedTextSize.x, blendedTextSize.y };
+				SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
+			}
 
-		{
 			SDL_SetTextureColorMod( blendedText, 255, 255, 255 );
 			const Rect dst_rect = { p.x, p.y, blendedTextSize.x, blendedTextSize.y };
 			SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
@@ -162,10 +163,8 @@ void ExampleState::Render( const u32 frame, const u32 totalMSec, const float del
 
 void ExampleState2::Init()
 {
-	font = TTF_OpenFont( "../asset/font/MonkeyIsland-1991-refined.ttf", 24 );
+	font = TTF_OpenFont( BasePath "asset/font/MonkeyIsland-1991-refined.ttf", 24 );
 	TTF_SetFontHinting( font, TTF_HINTING_NONE );
-	image = IMG_LoadTexture( render, "../asset/graphic/background.png" );
-	SDL_SetTextureColorMod( image, 127, 255, 255 );
 
 	plasmaSrf = SDL_CreateRGBSurfaceWithFormat( 0, 1280 / Scale, 960 / Scale, 32, SDL_PIXELFORMAT_RGBA32 );
 
@@ -252,11 +251,13 @@ void ExampleState2::Render( const u32 frame, const u32 totalMSec, const float de
 	// No clear needed since everything is overdrawn
 
 	// Draw the plasma
-	SDL_UpdateTexture( plasmaTex, EntireRect, plasmaSrf->pixels, plasmaSrf->pitch );
-	const Rect dst_rect { 0, 0, plasmaSrf->w * Scale, plasmaSrf->h * Scale };
-	SDL_RenderCopy( render, plasmaTex, EntireRect, &dst_rect );
+	{
+		SDL_UpdateTexture( plasmaTex, EntireRect, plasmaSrf->pixels, plasmaSrf->pitch );
+		const Rect dst_rect { 0, 0, plasmaSrf->w * Scale, plasmaSrf->h * Scale };
+		SDL_RenderCopy( render, plasmaTex, EntireRect, &dst_rect );
+	}
 
-	// Draw the text on top
+	// Prepare the text as Texture
 	if( blendedText == nullptr )
 	{
 		constexpr const char * text =
@@ -276,18 +277,20 @@ void ExampleState2::Render( const u32 frame, const u32 totalMSec, const float de
 		SDL_QueryTexture( blendedText, &fmt, &access, &blendedTextSize.x, &blendedTextSize.y );
 	}
 
-	SDL_SetTextureColorMod( blendedText, 0, 0, 0 );
-	const Point p {
-		game.GetWindowSize().x / 3,
-		game.GetWindowSize().y - 150
-	};
-	for( const Point & pd : shadowOffsets )
+	// Draw the text on top
 	{
-		const Rect dst_rect = p + (pd * 2) + Rect{ 0, 0, blendedTextSize.x, blendedTextSize.y };
-		SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
-	}
+		const Point p {
+			game.GetWindowSize().x / 3,
+			game.GetWindowSize().y - 150
+		};
 
-	{
+		SDL_SetTextureColorMod( blendedText, 0, 0, 0 );
+		for( const Point & pd : shadowOffsets )
+		{
+			const Rect dst_rect = p + (pd * 2) + Rect{ 0, 0, blendedTextSize.x, blendedTextSize.y };
+			SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
+		}
+
 		SDL_SetTextureColorMod( blendedText, 255, 255, 255 );
 		const Rect dst_rect = p + Rect{ 0, 0, blendedTextSize.x, blendedTextSize.y };
 		SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );

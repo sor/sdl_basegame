@@ -48,3 +48,9 @@ using TimePoint = Clock::time_point;
 using Duration  = Clock::duration;
 
 using std::cout, std::cin, std::cerr, std::endl;
+
+#ifdef _MSC_VER
+#define BasePath ""
+#else
+#define BasePath "../"
+#endif
