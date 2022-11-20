@@ -6,13 +6,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_executable(sdl_basegame
-    src/main.cpp
-    src/global.h
-    src/gamebase.h
-    src/examplegame.h
-    src/gamebase.cpp
-    src/examplegame.cpp
-    src/recthelper.h)
+        src/main.cpp
+        src/global.h
+        src/gamebase.h
+        src/examplegame.h
+        src/gamebase.cpp
+        src/examplegame.cpp
+        src/recthelper.h
+        src/sortstate.cpp
+        src/plasmastate.cpp)
 
 include(FindPkgConfig)
 
@@ -29,18 +31,18 @@ else()
 endif()
 
 include_directories(
-    ${SDL2_INCLUDE_DIRS}
-    ${SDL2TTF_INCLUDE_DIRS}
-    ${SDL2NET_INCLUDE_DIRS}
-    ${SDL2GFX_INCLUDE_DIRS}
-    ${SDL2MIXER_INCLUDE_DIRS}
-    ${SDL2IMAGE_INCLUDE_DIRS})
+        ${SDL2_INCLUDE_DIRS}
+        ${SDL2TTF_INCLUDE_DIRS}
+        ${SDL2NET_INCLUDE_DIRS}
+        ${SDL2GFX_INCLUDE_DIRS}
+        ${SDL2MIXER_INCLUDE_DIRS}
+        ${SDL2IMAGE_INCLUDE_DIRS})
 
 target_link_libraries(
-    ${PROJECT_NAME}
-    ${SDL2_LIBRARIES}
-    ${SDL2TTF_LIBRARIES}
-    ${SDL2NET_LIBRARIES}
-    ${SDL2GFX_LIBRARIES}
-    ${SDL2MIXER_LIBRARIES}
-    ${SDL2IMAGE_LIBRARIES})
+        ${PROJECT_NAME}
+        ${SDL2_LIBRARIES}
+        ${SDL2TTF_LIBRARIES}
+        ${SDL2NET_LIBRARIES}
+        ${SDL2GFX_LIBRARIES}
+        ${SDL2MIXER_LIBRARIES}
+        ${SDL2IMAGE_LIBRARIES})

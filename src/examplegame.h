@@ -7,7 +7,8 @@
 
 class ExampleGame;
 class ExampleState;
-class ExampleState2;
+class PlasmaState;
+class SortState;
 
 class ExampleGame final : public Game
 {
@@ -61,7 +62,7 @@ public:
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
 
-class ExampleState2 final : public ExampleState
+class PlasmaState final : public ExampleState
 {
 	Surface * plasmaSrf;
 	Texture * plasmaTex;
@@ -78,6 +79,27 @@ public:
 	void UnInit() override;
 
 	void Events(const u32 frame, const u32 totalMSec, const float deltaT) override;
+	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+};
+
+class SortState : public GameState
+{
+protected:
+	struct Ball { float x,y,z,w; };
+
+	Texture * image = nullptr;
+	Vector<Ball> balls;
+	bool isOrdered = false;
+
+public:
+	// ctor
+	using GameState::GameState;
+
+	void Init() override;
+	void UnInit() override;
+
+	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
