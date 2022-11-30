@@ -36,7 +36,7 @@ include_directories(
         ${SDL2_INCLUDE_DIRS}
         ${SDL2TTF_INCLUDE_DIRS}
         ${SDL2NET_INCLUDE_DIRS}
-        ${SDL2GFX_INCLUDE_DIRS}
+        #${SDL2GFX_INCLUDE_DIRS}
         ${SDL2MIXER_INCLUDE_DIRS}
         ${SDL2IMAGE_INCLUDE_DIRS})
 
@@ -45,6 +45,6 @@ target_link_libraries(
         ${SDL2_LIBRARIES}
         ${SDL2TTF_LIBRARIES}
         ${SDL2NET_LIBRARIES}
-        ${SDL2GFX_LIBRARIES}
+        #${SDL2GFX_LIBRARIES}
         ${SDL2MIXER_LIBRARIES}
         ${SDL2IMAGE_LIBRARIES})

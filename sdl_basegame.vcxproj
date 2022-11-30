@@ -162,6 +162,8 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\plasmastate.cpp" />
     <ClCompile Include="src\sortstate.cpp" />
+    <ClCompile Include="src\introstate.cpp" />
+    <ClCompile Include="src\camerastate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\examplegame.h" />
