@@ -23,7 +23,7 @@ void PlasmaState::UnInit()
 	plasmaSrf = nullptr;
 	plasmaTex = nullptr;
 
-	ExampleState::UnInit();
+	IntroState::UnInit();
 }
 
 void PlasmaState::Events( const u32 frame, const u32 totalMSec, const float deltaT )

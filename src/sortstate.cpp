@@ -41,6 +41,8 @@ void SortState::Events( const u32 frame, const u32 totalMSec, const float deltaT
 
 		if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F1 && event.key.repeat == 0 )
 			isOrdered = !isOrdered;
+		if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F2 && event.key.repeat == 0 )
+			isTransparent = !isTransparent;
 	}
 }
 
@@ -49,7 +51,8 @@ void SortState::Update( const u32 frame, const u32 totalMSec, const float deltaT
 	for( Ball & ball : balls )
 	{
 		ball.x -= deltaT * 40.f;
-		ball.z = 0.5f + 0.5f * sin( ball.w ); // bounce from 0 to 1
+		ball.z = abs(sin( ball.w ));          // bounce from 0 to 1
+	//	ball.z = 0.5f + 0.5f * sin( ball.w ); // bob from 0 to 1
 		ball.w += deltaT * 2.0f;
 	}
 }
@@ -57,6 +60,9 @@ void SortState::Update( const u32 frame, const u32 totalMSec, const float deltaT
 void SortState::Render( const u32 frame, const u32 totalMSec, const float deltaT )
 {
 	SDL_RenderClear( render );
+
+	u8 alpha = isTransparent ? 127 : 255;
+	SDL_SetTextureAlphaMod( image, alpha );
 
 	auto orderByZ = []( Ball & lhs, Ball & rhs )
 		{

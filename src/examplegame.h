@@ -6,7 +6,7 @@
 #include "recthelper.h"
 
 class ExampleGame;
-class ExampleState;
+class IntroState;
 class PlasmaState;
 class SortState;
 
@@ -18,7 +18,7 @@ public:
 	bool HandleEvent( const Event event ) override;
 };
 
-class ExampleState : public GameState
+class IntroState : public GameState
 {
 protected:
 	Font    * font              = nullptr;
@@ -62,7 +62,7 @@ public:
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
 
-class PlasmaState final : public ExampleState
+class PlasmaState final : public IntroState
 {
 	Surface * plasmaSrf;
 	Texture * plasmaTex;
@@ -73,7 +73,7 @@ class PlasmaState final : public ExampleState
 
 public:
 	// ctor
-	using ExampleState::ExampleState;
+	using IntroState::IntroState;
 
 	void Init() override;
 	void UnInit() override;
@@ -91,6 +91,54 @@ protected:
 	Texture * image = nullptr;
 	Vector<Ball> balls;
 	bool isOrdered = false;
+	bool isTransparent = false;
+
+public:
+	// ctor
+	using GameState::GameState;
+
+	void Init() override;
+	void UnInit() override;
+
+	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+};
+
+class CameraState : public GameState
+{
+protected:
+	struct Ball { float x, y, z, w; };
+
+	Texture * image = nullptr;
+	Texture * bg[4] = { nullptr };
+	Point bgSize[4];
+	const FPoint bgStart[4] = {
+		{ 0,    -330 },
+		{ -350, -330 },
+		{ -450, -900 },
+		{ -800, -1500 },
+	};
+	const FPoint bgFactor[4] = {
+		{ 0.2f, 0.3f },
+		{ 0.4f, 0.45f },
+		{ 0.8f, 0.8f },
+		{ 1.2f, 1.2f },
+	};
+	bool bgIsVisible[4] = {
+		false,
+		false,
+		false,
+		false,
+	};
+	FPoint mouseOffset = { 0, 0 };
+	FPoint mouseOffsetEased = { 0, 0 };
+
+	Vector<Ball> balls;
+	bool isInverted = false;
+	bool isEased = false;
+	bool isFlux = false;
+	FPoint cam { .x = 0, .y = 0 };
 
 public:
 	// ctor
