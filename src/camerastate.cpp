@@ -4,11 +4,6 @@ void CameraState::Init()
 {
 	GameState::Init();
 
-	if( !image )
-	{
-		image = IMG_LoadTexture( render, BasePath "asset/graphic/ball.png" );
-	}
-
 	if( !bg[0] )
 	{
 		//SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
@@ -137,7 +132,7 @@ void CameraState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 	    : FPoint { 0, 0 };
 	const FPoint fluxCam = cam + flux + mouseOffsetEased;
 
-	for( int i = 0; i <= 3; ++i )
+	for( int i = 0; i <= 3; ++i ) // The 4 layers, rendered back to front
 	{
 		if( !bgIsVisible[i] )
 			continue;

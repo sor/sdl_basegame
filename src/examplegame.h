@@ -108,9 +108,6 @@ public:
 class CameraState : public GameState
 {
 protected:
-	struct Ball { float x, y, z, w; };
-
-	Texture * image = nullptr;
 	Texture * bg[4] = { nullptr };
 	Point bgSize[4];
 	const FPoint bgStart[4] = {
@@ -134,7 +131,6 @@ protected:
 	FPoint mouseOffset = { 0, 0 };
 	FPoint mouseOffsetEased = { 0, 0 };
 
-	Vector<Ball> balls;
 	bool isInverted = false;
 	bool isEased = false;
 	bool isFlux = false;
