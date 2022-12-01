@@ -113,12 +113,12 @@ int Game::Run()
 	{
 		start = Clock::now();
 
-		ActivateNextState();
-
 		const float deltaTF = std::chrono::duration<float>( deltaT ).count();
 		const float deltaTFNeeded = std::chrono::duration<float>( deltaTNeeded ).count();
 
 		OutputPerformanceInfo( start, deltaTNeeded );
+
+		ActivateNextState();
 
 		const u32 totalMSec = SDL_GetTicks();
 
@@ -126,8 +126,8 @@ int Game::Run()
 
 		currentState->Events( frame, totalMSec, deltaTF );
 		currentState->Update( frame, totalMSec, deltaTF );
+		SDL_RenderClear( render );
 		currentState->Render( frame, totalMSec, deltaTFNeeded );
-
 		SDL_RenderPresent( render );
 
 		deltaTNeeded = Clock::now() - start;

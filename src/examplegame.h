@@ -123,17 +123,17 @@ protected:
 		{ 1.2f, 1.2f },
 	};
 	bool bgIsVisible[4] = {
-		false,
-		false,
-		false,
-		false,
+		true,
+		true,
+		true,
+		true,
 	};
 	FPoint mouseOffset = { 0, 0 };
 	FPoint mouseOffsetEased = { 0, 0 };
 
 	bool isInverted = false;
-	bool isEased = false;
-	bool isFlux = false;
+	bool isEased = true;
+	bool isFlux = true;
 	FPoint cam { .x = 0, .y = 0 };
 
 public:

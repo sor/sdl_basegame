@@ -117,8 +117,6 @@ void CameraState::Update( const u32 frame, const u32 totalMSec, const float delt
 
 void CameraState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 {
-	SDL_RenderClear( render );
-
 	// Try the limits, moments before wraparound
 	//totalMSec += 2147470000u + 2147480000u;
 

@@ -59,8 +59,6 @@ void SortState::Update( const u32 frame, const u32 totalMSec, const float deltaT
 
 void SortState::Render( const u32 frame, const u32 totalMSec, const float deltaT )
 {
-	SDL_RenderClear( render );
-
 	u8 alpha = isTransparent ? 127 : 255;
 	SDL_SetTextureAlphaMod( image, alpha );
 
