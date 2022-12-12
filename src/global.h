@@ -56,3 +56,11 @@ using std::cout, std::cin, std::cerr, std::endl;
 #else
 #define BasePath "../"
 #endif
+
+#if defined( _DEBUG )
+#define DebugOnly( ... ) __VA_ARGS__
+#define IfDebug if constexpr( true )
+#else
+#define DebugOnly( ... )
+#define IfDebug if constexpr( false )
+#endif

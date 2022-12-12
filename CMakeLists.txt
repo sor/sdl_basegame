@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
+add_compile_options("$<$<CONFIG:DEBUG>:-D_DEBUG>")
+
 add_executable(sdl_basegame
         src/main.cpp
         src/global.h
@@ -16,7 +18,8 @@ add_executable(sdl_basegame
         src/introstate.cpp
         src/plasmastate.cpp
         src/sortstate.cpp
-        src/camerastate.cpp)
+        src/camerastate.cpp
+        src/shooterstate.cpp)
 
 include(FindPkgConfig)
 

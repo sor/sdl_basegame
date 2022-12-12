@@ -146,4 +146,45 @@ public:
 	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+
+	void RenderLayer(const Point winSize, const FPoint camPos, const int index) const;
+};
+
+class ShooterState : public CameraState
+{
+protected:
+	float progress = 0;
+	u32 shootCooldown = 0;
+
+	Texture * projectile[4] = { nullptr };
+
+	Vector<FPoint> enemyProjectiles;
+	Vector<FPoint>::iterator enemyProjReuse;
+	int     numDeadEnemyProj = 0;
+
+	Vector<FPoint> myProjectiles;
+	Vector<FPoint>::iterator myProjReuse;
+	int     numDeadMyProj = 0;
+
+	FRect   player    = { 200, 480, 200, 100 };
+	FPoint  sat[5]    = { { 0, 0 } };
+	int     satCount  = 5;
+	static constexpr const int satRadius = 25;
+
+public:
+	// ctor
+	using CameraState::CameraState;
+
+	void Init() override;
+	void UnInit() override;
+
+	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+
+	[[nodiscard]]
+	bool IsProjectileAlive( const Vector<FPoint>::iterator & it ) const;
+	void SpawnProjectile( const FPoint pos );
+	void SpawnMyProjectile( const FPoint pos );
+	void RetireProjectile( const Vector<FPoint>::iterator & it );
 };

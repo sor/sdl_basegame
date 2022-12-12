@@ -18,13 +18,13 @@ void CameraState::Init()
 		SDL_QueryTexture( bg[2], nullptr, nullptr, &bgSize[2].x, &bgSize[2].y );
 		SDL_QueryTexture( bg[3], nullptr, nullptr, &bgSize[3].x, &bgSize[3].y );
 
-		SDL_SetTextureColorMod( bg[0], 195, 195, 195 );
-		SDL_SetTextureColorMod( bg[1], 195, 195, 195 );
-		SDL_SetTextureColorMod( bg[2], 225, 225, 225 );
+		SDL_SetTextureColorMod( bg[0], 163, 163, 163 );
+		SDL_SetTextureColorMod( bg[1], 191, 191, 191 );
+		SDL_SetTextureColorMod( bg[2], 191, 191, 191 );
 		SDL_SetTextureColorMod( bg[3], 225, 225, 255 );
 
 		SDL_SetTextureAlphaMod( bg[2], 210 );
-		SDL_SetTextureAlphaMod( bg[3], 180 );
+		SDL_SetTextureAlphaMod( bg[3], 127 );
 
 		SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
 	}
@@ -132,22 +132,27 @@ void CameraState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 
 	for( int i = 0; i <= 3; ++i ) // The 4 layers, rendered back to front
 	{
-		if( !bgIsVisible[i] )
-			continue;
+		RenderLayer(winSize, fluxCam, i);
+	}
+}
 
-		const Point size = bgSize[i];
-		const FPoint offset = bgStart[i] + fluxCam * bgFactor[i];
-		for( float x = offset.x; x < winSize.x; x += size.x * 2 )
+void CameraState::RenderLayer(const Point winSize, const FPoint camPos, const int index) const
+{
+	if( !bgIsVisible[index] )
+		return;
+
+	const Point size = bgSize[index];
+	const FPoint offset = bgStart[index] + camPos * bgFactor[index];
+	for( float x = offset.x; x < winSize.x; x += size.x * 2 )
+	{
+		for( float y = offset.y; y < winSize.y; y += size.y * 2 )
 		{
-			for( float y = offset.y; y < winSize.y; y += size.y * 2 )
-			{
-				Rect off = { .x = (int)x, .y = (int)y, .w = size.x * 2, .h = size.y * 2 };
-				SDL_RenderCopy( render, bg[i], EntireRect, &off );
+			Rect off = { .x = (int)x, .y = (int)y, .w = size.x * 2, .h = size.y * 2 };
+			SDL_RenderCopy( render, bg[index], EntireRect, &off );
 
-				// Makes only sense with texture hint == best
-				//FRect offset = { .x = x, .y = y, .w = size.x * 2.0f, .h = size.y * 2.0f };
-				//SDL_RenderCopyF( render, bg[i], EntireRect, &offset );
-			}
+			// Makes only sense with texture hint == best
+			//FRect offset = { .x = x, .y = y, .w = size.x * 2.0f, .h = size.y * 2.0f };
+			//SDL_RenderCopyF( render, bg[i], EntireRect, &offset );
 		}
 	}
 }

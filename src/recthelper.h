@@ -30,8 +30,12 @@ constexpr SDL_Rect&   operator-= (SDL_Rect& lhs, const SDL_Rect rhs) { lhs = lhs
 constexpr SDL_Rect    operator+  (const SDL_Point lhs, const SDL_Rect rhs) { return { lhs.x + rhs.x, lhs.y + rhs.y, rhs.w, rhs.h }; }
 constexpr SDL_Rect    operator+  (const SDL_Rect lhs, const SDL_Point rhs) { return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.w, lhs.h }; }
 constexpr SDL_Rect    operator-  (const SDL_Rect lhs, const SDL_Point rhs) { return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.w, lhs.h }; }
+constexpr SDL_Rect    operator*  (const SDL_Rect lhs, const SDL_Point rhs) { return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.w, lhs.h }; }
+constexpr SDL_Rect    operator/  (const SDL_Rect lhs, const SDL_Point rhs) { return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.w, lhs.h }; }
 constexpr SDL_Rect&   operator+= (SDL_Rect& lhs, const SDL_Point rhs) { lhs = lhs + rhs; return lhs; }
 constexpr SDL_Rect&   operator-= (SDL_Rect& lhs, const SDL_Point rhs) { lhs = lhs - rhs; return lhs; }
+constexpr SDL_Rect&   operator*= (SDL_Rect& lhs, const SDL_Point rhs) { lhs = lhs * rhs; return lhs; }
+constexpr SDL_Rect&   operator/= (SDL_Rect& lhs, const SDL_Point rhs) { lhs = lhs / rhs; return lhs; }
 
 constexpr SDL_Rect    operator*  (const SDL_Rect lhs, const int rhs) { return { lhs.x, lhs.y, lhs.w * rhs, lhs.h * rhs }; }
 constexpr SDL_Rect    operator/  (const SDL_Rect lhs, const int rhs) { return { lhs.x, lhs.y, lhs.w / rhs, lhs.h / rhs }; }
