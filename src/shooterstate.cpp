@@ -51,8 +51,8 @@ void ShooterState::Events( const u32 frame, const u32 totalMSec, const float del
 				(float)event.button.x,
 				(float)event.button.y } - mouseOffsetEased - cam;
 			//enemyProjectiles.push_back( mousePos );
-			rvProjectiles.Spawn(mousePos);
-			rvProjectiles.Spawn({1,1});
+			//rvProjectiles.Spawn(mousePos);
+			//rvProjectiles.Spawn({1,1});
 			SpawnProjectile(mousePos);
 		}
 		else if( event.type == SDL_MOUSEMOTION )
