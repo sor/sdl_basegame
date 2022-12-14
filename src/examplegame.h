@@ -166,7 +166,13 @@ protected:
 	Vector<FPoint>::iterator myProjReuse;
 	int     numDeadMyProj = 0;
 
-	FRect   player    = { 200, 480, 200, 100 };
+	Vector<FRect> enemies = {
+		{ 1100, 280, 160, 160 },
+		{ 1200, 500, 80, 80 },
+		{ 1100, 680, 80, 80 },
+	};
+
+	FRect   player    = { 200, 530, 200, 100 };
 	FPoint  sat[5]    = { { 0, 0 } };
 	int     satCount  = 5;
 	static constexpr const int satRadius = 25;
@@ -187,4 +193,5 @@ public:
 	void SpawnProjectile( const FPoint pos );
 	void SpawnMyProjectile( const FPoint pos );
 	void RetireProjectile( const Vector<FPoint>::iterator & it );
+	void RetireMyProjectile( const Vector<FPoint>::iterator & it );
 };

@@ -53,7 +53,7 @@ void ShooterState::Events( const u32 frame, const u32 totalMSec, const float del
 			//enemyProjectiles.push_back( mousePos );
 			//rvProjectiles.Spawn(mousePos);
 			//rvProjectiles.Spawn({1,1});
-			SpawnProjectile(mousePos);
+			SpawnProjectile( mousePos );
 		}
 		else if( event.type == SDL_MOUSEMOTION )
 		{
@@ -69,7 +69,7 @@ void ShooterState::Events( const u32 frame, const u32 totalMSec, const float del
 					(float)event.motion.x,
 					(float)event.motion.y } - mouseOffsetEased - cam;
 				//enemyProjectiles.push_back( mousePos );
-				SpawnProjectile(mousePos);
+				SpawnProjectile( mousePos );
 			}
 		}
 		else if( event.type == SDL_MOUSEBUTTONUP )
@@ -99,9 +99,12 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 	cam.x -= travelDist;
 
 	player.x += travelDist;
-//	player.y += (((int)(player.x/50))%2)
-//		? travelDist*2
-//		: -travelDist*2;
+	player.y += (((int)(player.x/50))%2)
+		? travelDist*2
+		: -travelDist*2;
+
+	for( auto & e : enemies )
+		e.x += travelDist;
 
 	const float angle = (float)totalMSec * 0.001f;
 	const float satOffsetAngle = ((float)(M_PI*2)) / (float)satCount;
@@ -127,7 +130,9 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 		if( shootCooldown < totalMSec )
 			shootCooldown = totalMSec + 250;
 
-		SpawnMyProjectile( FPoint { player.x + player.w, player.y + player.h / 2 } );
+		SpawnMyProjectile( FPoint { player.x + player.w,      player.y + player.h / 2 } );
+		SpawnMyProjectile( FPoint { player.x + player.w - 20, player.y + player.h / 2 - 10 } );
+		SpawnMyProjectile( FPoint { player.x + player.w - 20, player.y + player.h / 2 + 10 } );
 		for( int i = 0; i < satCount; ++i )
 		{
 			SpawnMyProjectile( sat[i] );
@@ -143,7 +148,7 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 		if( !IsProjectileAlive( it ) )
 			continue;
 
-		Point pos = { (int)p.x, (int)p.y };
+		const Point pos = { (int)p.x, (int)p.y };
 		const bool isJustOutOfLevel = p.x < 0;
 		const bool isPlayerHit = SDL_PointInRect( &pos, &playerRect );
 
@@ -166,6 +171,35 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 		if( isPlayerHit || isPlayerExtraHit || isJustOutOfLevel )
 		{
 			RetireProjectile( it );
+		}
+	}
+
+	for( auto it = myProjectiles.begin(); it != myProjectiles.end(); ++it )
+	{
+		auto & p = *it;
+
+		if( !IsProjectileAlive( it ) )
+			continue;
+
+		const Point pos = { (int)p.x, (int)p.y };
+		const bool isJustOutOfLevel = p.x > progress + game.GetWindowSize().x * 2;
+		if( isJustOutOfLevel )
+		{
+			RetireMyProjectile( it );
+			continue;
+		}
+
+		for( auto & e : enemies )
+		{
+			const Rect enemyRect = { (int)e.x, (int)e.y, (int)e.w, (int)e.h };
+			const bool isEnemyHit = SDL_PointInRect( &pos, &enemyRect );
+			if( isEnemyHit )
+			{
+				// TODO: Damage the enemy
+
+				RetireMyProjectile( it );
+				break;
+			}
 		}
 	}
 
@@ -367,14 +401,15 @@ void ShooterState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 		}
 	}
 
+	// Draw player
 	SDL_SetRenderDrawBlendMode( render, SDL_BLENDMODE_BLEND );
-	SDL_SetRenderDrawColor( render, 255, 0, 0, 127 );
+	SDL_SetRenderDrawColor( render, 0, 255, 0, 127 );
 
 	//const Point fluxCamI = { (int)fluxCam.x, (int)fluxCam.y };
 	const FRect pos = player + fluxCam;
 	SDL_RenderFillRectF( render, &pos );
 
-
+	// Draw player satellites
 	SDL_SetRenderDrawBlendMode( render, SDL_BLENDMODE_NONE );
 	SDL_SetRenderDrawColor( render, 0, 255, 255, 255 );
 
@@ -382,6 +417,17 @@ void ShooterState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 	{
 		const FPoint sat2Pos = sat[i] + fluxCam;
 		DrawCircle( render, Point { (int)(sat2Pos.x), (int)(sat2Pos.y) }, satRadius );
+	}
+
+	// Draw enemies
+	SDL_SetRenderDrawBlendMode( render, SDL_BLENDMODE_BLEND );
+	SDL_SetRenderDrawColor( render, 255, 0, 0, 127 );
+
+	for(auto & e : enemies)
+	{
+		//const Point fluxCamI = { (int)fluxCam.x, (int)fluxCam.y };
+		const FRect pos = e + fluxCam;
+		SDL_RenderFillRectF( render, &pos );
 	}
 
 	RenderLayer( winSize, fluxCam, 3 );
@@ -407,7 +453,7 @@ void ShooterState::SpawnProjectile( const FPoint pos )
 				enemyProjReuse = enemyProjectiles.begin();
 			}
 		}
-		DebugOnly( cout << "seeked for " << count << " entries in the enemyProjectiles until a reusable was found" << endl; )
+		DebugOnly( cout << "seeked for " << count << " entries in enemyProjectiles until a reusable was found" << endl; )
 		*enemyProjReuse = pos;
 		--numDeadEnemyProj;
 	}
@@ -443,7 +489,7 @@ void ShooterState::SpawnMyProjectile( const FPoint pos )
 				myProjReuse = myProjectiles.begin();
 			}
 		}
-		DebugOnly( cout << "seeked for " << count << " entries in the enemyProjectiles until a reusable was found" << endl; )
+		DebugOnly( cout << "seeked for " << count << " entries in myProjectiles until a reusable was found" << endl; )
 		*myProjReuse = pos;
 		--numDeadMyProj;
 	}
@@ -469,4 +515,11 @@ void ShooterState::RetireProjectile( const Vector<FPoint>::iterator & it )
 	it->x = INFINITY;
 	enemyProjReuse = it;
 	++numDeadEnemyProj;
+}
+
+void ShooterState::RetireMyProjectile( const Vector<FPoint>::iterator & it )
+{
+	it->x = -INFINITY;
+	myProjReuse = it;
+	++numDeadMyProj;
 }
