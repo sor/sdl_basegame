@@ -120,6 +120,7 @@ int Game::Run()
 
 		ActivateNextState();
 
+		// The difference to last frame is usually 16-17 at 60Hz, 10 at 100Hz, 8-9 at 120Hz, 6-*7* at 144Hz
 		const u32 totalMSec = SDL_GetTicks();
 
 		SDL_GetWindowSize(window, &windowSize.x, &windowSize.y);
@@ -129,6 +130,7 @@ int Game::Run()
 		SDL_RenderClear( render );
 		currentState->Render( frame, totalMSec, deltaTFNeeded );
 		SDL_RenderPresent( render );
+
 
 		deltaTNeeded = Clock::now() - start;
 

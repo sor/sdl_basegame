@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.12)
 project(sdl_basegame)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")     # baseclass functions have plenty unused parameters
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-attributes")   # clang does not know [[(un)likely]]
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+
+set(CMAKE_CXX_FLAGS_DEBUG   "-Og")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_compile_options("$<$<CONFIG:DEBUG>:-D_DEBUG>")

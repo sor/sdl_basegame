@@ -92,6 +92,7 @@ protected:
 	Vector<Ball> balls;
 	bool isOrdered = false;
 	bool isTransparent = false;
+	bool isDarkened = false;
 
 public:
 	// ctor

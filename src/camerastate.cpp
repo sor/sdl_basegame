@@ -64,8 +64,8 @@ void CameraState::Events( const u32 frame, const u32 totalMSec, const float delt
 			if( event.key.keysym.scancode == SDL_SCANCODE_F7 ) isEased = !isEased;
 			if( event.key.keysym.scancode == SDL_SCANCODE_F8 ) isFlux = !isFlux;
 		}
-		else if( event.type == SDL_MOUSEBUTTONDOWN
-			||   event.type == SDL_MOUSEMOTION && event.motion.state != 0 )
+		else if( (event.type == SDL_MOUSEBUTTONDOWN)
+			||   (event.type == SDL_MOUSEMOTION && event.motion.state != 0) )
 		{
 			const Point  halfWinSize  = game.GetWindowSize() / 2;
 			const FPoint halfWinSizeF = { (float)halfWinSize.x, (float)halfWinSize.y };
