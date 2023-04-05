@@ -229,77 +229,31 @@ T roundUpMultiple( T v )
 		return ((v + (N - 1)) / N) * N;
 }
 
-void DrawCircle( SDL_Renderer * renderer, SDL_Point center, int radius )
+Vector<SDL_Point> PixelizeCircle( SDL_Point center, int radius )
 {
-	const int arrSize = roundUpMultiple<8>( radius * 8 * 35 / 49 ); // 35 / 49 is a slightly biased approximation of 1/sqrt(2)
-	SDL_Point points[arrSize];
-	int       drawCount = 0;
-
-	const int32_t diameter = (radius * 2);
-
-	int32_t x = (radius - 1);
-	int32_t y = 0;
-	int32_t tx = 1;
-	int32_t ty = 1;
-	int32_t error = (tx - diameter);
-
-	while( x >= y )
-	{
-		// Each of the following renders an octant of the circle
-		points[drawCount+0] = center + SDL_Point { +x, -y };
-		points[drawCount+1] = center + SDL_Point { +x, +y };
-		points[drawCount+2] = center + SDL_Point { -x, -y };
-		points[drawCount+3] = center + SDL_Point { -x, +y };
-		points[drawCount+4] = center + SDL_Point { +y, -x };
-		points[drawCount+5] = center + SDL_Point { +y, +x };
-		points[drawCount+6] = center + SDL_Point { -y, -x };
-		points[drawCount+7] = center + SDL_Point { -y, +x };
-
-		drawCount += 8;
-
-		if( error <= 0 )
-		{
-			++y;
-			error += ty;
-			ty += 2;
-		}
-
-		if( error > 0 )
-		{
-			--x;
-			tx += 2;
-			error += (tx - diameter);
-		}
-	}
-
-	SDL_RenderDrawPoints( renderer, points, drawCount );
-}
-
-/*std::vector<SDL_Point> PixelizeCircle( SDL_Point center, int radius )
-{
-	std::vector<SDL_Point> points;
+	Vector<SDL_Point> points;
 	const int arrSize = roundUpMultiple<8>( radius * 8 * 35 / 49 ); // 35 / 49 is a slightly biased approximation of 1/sqrt(2)
 	points.reserve( arrSize );
 
-	const int32_t diameter = (radius * 2);
+	const i32 diameter = (radius * 2);
 
-	int32_t x = (radius - 1);
-	int32_t y = 0;
-	int32_t tx = 1;
-	int32_t ty = 1;
-	int32_t error = (tx - diameter);
+	i32 x = (radius - 1);
+	i32 y = 0;
+	i32 tx = 1;
+	i32 ty = 1;
+	i32 error = (tx - diameter);
 
 	while( x >= y )
 	{
 		// Each of the following renders an octant of the circle
-		points.push_back( { center.x + x, center.y - y } );
-		points.push_back( { center.x + x, center.y + y } );
-		points.push_back( { center.x - x, center.y - y } );
-		points.push_back( { center.x - x, center.y + y } );
-		points.push_back( { center.x + y, center.y - x } );
-		points.push_back( { center.x + y, center.y + x } );
-		points.push_back( { center.x - y, center.y - x } );
-		points.push_back( { center.x - y, center.y + x } );
+		points.push_back( center + SDL_Point { +x, -y } );
+		points.push_back( center + SDL_Point { +x, +y } );
+		points.push_back( center + SDL_Point { -x, -y } );
+		points.push_back( center + SDL_Point { -x, +y } );
+		points.push_back( center + SDL_Point { +y, -x } );
+		points.push_back( center + SDL_Point { +y, +x } );
+		points.push_back( center + SDL_Point { -y, -x } );
+		points.push_back( center + SDL_Point { -y, +x } );
 
 		if( error <= 0 )
 		{
@@ -316,8 +270,19 @@ void DrawCircle( SDL_Renderer * renderer, SDL_Point center, int radius )
 		}
 	}
 
-	return points;
-}*/
+	return points; // NRVO will make this good, fingers crossed
+}
+
+void DrawCircle( SDL_Renderer* renderer, const Vector<SDL_Point> & points )
+{
+	SDL_RenderDrawPoints( renderer, points.data(), points.size() );
+}
+
+void DrawCircle( SDL_Renderer* renderer, SDL_Point center, int radius )
+{
+	const Vector<SDL_Point> points = PixelizeCircle( center, radius );
+	DrawCircle( renderer, points );
+}
 
 template <int X, int Y>
 Point unpack( int val ) // LtR, TtB
@@ -330,20 +295,12 @@ void ShooterState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 	// Try the limits, moments before wraparound
 	//totalMSec += 2147470000u + 2147480000u;
 
-	const Point winSize = game.GetWindowSize();
-	const FPoint flux = isFlux
-		? FPoint {
-			.x = (float)sin( totalMSec / 650.0f ) * 5.0f,
-			.y = (float)sin( totalMSec / 500.0f ) * 10.0f
-			     + (float)sin( totalMSec / 850.0f ) * 5.0f
-			     + (float)cos( totalMSec / 1333.0f ) * 5.0f }
-		: FPoint { 0, 0 };
+	const Point  winSize = game.GetWindowSize();
+	const FPoint fluxCam = CalcFluxCam( totalMSec );
 
-	const FPoint fluxCam = cam + flux + mouseOffsetEased;
-
-	for( int i = 0; i <= 2; ++i ) // The first 3 layers, rendered back to front
+	for( int i = 0; i <= 2; ++i ) // Only the first 3 layers, rendered back to front
 	{
-		RenderLayer(winSize, fluxCam, i);
+		RenderLayer( winSize, fluxCam, i );
 	}
 
 	{
@@ -430,7 +387,8 @@ void ShooterState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 		SDL_RenderFillRectF( render, &pos );
 	}
 
-	RenderLayer( winSize, fluxCam, 3 );
+	for( int i = 3; i <= 3; ++i ) // Render the last 1 layers, rendered back to front
+		RenderLayer( winSize, fluxCam, i );
 }
 
 bool ShooterState::IsProjectileAlive( const Vector<FPoint>::iterator & it ) const

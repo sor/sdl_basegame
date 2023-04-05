@@ -19,7 +19,7 @@ void SortState::Init()
 			.x = iter * 40.f,
 			.y = y_center + sin( iter / 2.f ) * (y_center / 4.0f),
 			.z = 0,
-			.w = iter,
+			.w = iter * 0.6f,
 		};
 		iter += 1.0f;
 	}
@@ -72,7 +72,7 @@ void SortState::Render( const u32 frame, const u32 totalMSec, const float deltaT
 
 	for( Ball & ball : balls )
 	{
-		const int size = 48.f + ball.z * 80.f;
+		const int size = ball.z * 80.f + 48.f;
 		Rect dst_rect { (int)ball.x - (size / 2), (int)ball.y - (size), size, size };
 		SDL_RenderCopy( render, image, EntireRect, &dst_rect );
 	}
