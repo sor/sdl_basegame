@@ -37,7 +37,8 @@ public:
 
 	virtual void SetNextState( int index ) { nextStateIdx = index; }
 
-	const Point & GetWindowSize() { return windowSize; }
+	      Point & GetWindowSize()       { return windowSize; }
+	const Point & GetWindowSize() const { return windowSize; }
 
 protected:
 	virtual void ActivateNextState();

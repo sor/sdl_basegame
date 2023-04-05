@@ -115,20 +115,26 @@ void CameraState::Update( const u32 frame, const u32 totalMSec, const float delt
 	}
 }
 
-void CameraState::Render( const u32 frame, u32 totalMSec, const float deltaT )
+FPoint CameraState::CalcFluxCam( const u32 totalMSec ) const
 {
-	// Try the limits, moments before wraparound
-	//totalMSec += 2147470000u + 2147480000u;
-
-	const Point winSize = game.GetWindowSize();
 	const FPoint flux = isFlux
 		? FPoint {
 			.x = (float)sin( totalMSec / 650.0f ) * 5.0f,
 			.y = (float)sin( totalMSec / 500.0f ) * 10.0f
 			     + (float)sin( totalMSec / 850.0f ) * 5.0f
 			     + (float)cos( totalMSec / 1333.0f ) * 5.0f }
-	    : FPoint { 0, 0 };
+		: FPoint { 0, 0 };
 	const FPoint fluxCam = cam + flux + mouseOffsetEased;
+	return fluxCam;
+}
+
+void CameraState::Render( const u32 frame, u32 totalMSec, const float deltaT )
+{
+	// Try the limits, moments before wraparound
+	//totalMSec += 2147470000u + 2147480000u;
+
+	const Point  winSize = game.GetWindowSize();
+	const FPoint fluxCam = CalcFluxCam( totalMSec );
 
 	for( int i = 0; i <= 3; ++i ) // The 4 layers, rendered back to front
 	{
