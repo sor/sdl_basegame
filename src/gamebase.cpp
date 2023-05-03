@@ -221,8 +221,3 @@ void Game::OutputPerformanceInfo( const TimePoint current, const Duration needed
 		default: break;
 	}
 }
-
-GameState::GameState( Game & game, Renderer * render )
-	: game( game ),
-	  render( render )
-{}

@@ -30,6 +30,10 @@ public:
 		const char * windowTitle = "SDL Game",
 		const Point  windowSize  = Point { 1024, 720 },
 		const bool   vSync       = true );
+	Game(              const Game &  ) = delete;
+	Game(                    Game && ) = delete;
+	Game &  operator=( const Game &  ) = delete;
+	Game && operator=(       Game && ) = delete;
 	virtual ~Game();
 
 	virtual bool HandleEvent( const Event event );
@@ -37,8 +41,8 @@ public:
 
 	virtual void SetNextState( int index ) { nextStateIdx = index; }
 
-	      Point & GetWindowSize()       { return windowSize; }
-	const Point & GetWindowSize() const { return windowSize; }
+    [[nodiscard]]       Point & GetWindowSize()       { return windowSize; }
+	[[nodiscard]] const Point & GetWindowSize() const { return windowSize; }
 
 protected:
 	virtual void ActivateNextState();
@@ -75,8 +79,16 @@ protected:
 	Renderer * render;
 
 public:
-	GameState( Game & game, Renderer * render );
-	virtual ~GameState() = default;
+	explicit GameState( Game && game, Renderer * render ) = delete; // prevent taking an rvalue
+	explicit GameState( Game &  game, Renderer * render )
+		: game( game ),
+		  render( render )
+	{}
+	GameState(              const GameState &  ) = delete;
+	GameState(                    GameState && ) = delete;
+	GameState &  operator=( const GameState &  ) = delete;
+	GameState && operator=(       GameState && ) = delete;
+    virtual ~GameState() = default;
 
 	[[nodiscard]]
 	virtual bool IsFPSLimited() const { return true; }

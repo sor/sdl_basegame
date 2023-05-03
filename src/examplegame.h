@@ -78,7 +78,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void Events(const u32 frame, const u32 totalMSec, const float deltaT) override;
+	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };

@@ -5,12 +5,14 @@ void PlasmaState::Init()
 	font = TTF_OpenFont( BasePath "asset/font/MonkeyIsland-1991-refined.ttf", 24 );
 	TTF_SetFontHinting( font, TTF_HINTING_NONE );
 
-	plasmaSrf = SDL_CreateRGBSurfaceWithFormat( 0, 1280 / Scale, 960 / Scale, 32, SDL_PIXELFORMAT_RGBA32 );
+	const Point & winSize = game.GetWindowSize();
+	const Point resolution = winSize / Scale;
+	plasmaSrf = SDL_CreateRGBSurfaceWithFormat( 0, resolution.x, resolution.y, 32, SDL_PIXELFORMAT_RGBA32 );
 
 	// Set to smoothed rendering for the plasma texture
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
 
-	plasmaTex = SDL_CreateTexture( render, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, 1280 / Scale, 960 / Scale );
+	plasmaTex = SDL_CreateTexture( render, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
 
 	// Reset to "pixelated" for further textures
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
@@ -107,7 +109,8 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 		if( blendedText != nullptr )
 			SDL_DestroyTexture( blendedText );
 
-		Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, 1250 );
+		const Point & winSize = game.GetWindowSize();
+		Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, winSize.x - 30 );
 		blendedText = SDL_CreateTextureFromSurface( render, surf );
 		SDL_FreeSurface( surf );
 
