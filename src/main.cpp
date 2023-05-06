@@ -3,7 +3,7 @@
 #include "examplegame.h"
 
 extern "C"
-int main( int argc, char* argv[] )
+int main( int argc, char * argv [] )
 try
 {
 	std::ios_base::sync_with_stdio(false);

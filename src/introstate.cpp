@@ -16,7 +16,7 @@ void IntroState::Init()
 
 void IntroState::UnInit()
 {
-	// Keeping it loaded/allocated is also an option
+	// Keep everything loaded/allocated is also an option
 	/*
 	TTF_CloseFont( font );
 	SDL_DestroyTexture( image );
@@ -45,8 +45,8 @@ void IntroState::Events( const u32 frame, const u32 totalMSec, const float delta
 
 				if( what_key.scancode == SDL_SCANCODE_F9 )
 				{
-					// crash/shutdown, since State #2 does not exist
-					game.SetNextState( 2 );
+					// crash/shutdown, since State #6 does not exist
+					game.SetNextState( 99 );
 				}
 				else if( what_key.scancode == SDL_SCANCODE_ESCAPE )
 				{
@@ -72,9 +72,11 @@ void IntroState::Update( const u32 frame, const u32 totalMSec, const float delta
 
 void IntroState::Render( const u32 frame, const u32 totalMSec, const float deltaT )
 {
+	const Point & winSize = game.GetWindowSize();
+
 	{
-		const Rect dst_rect { 0, 0, 1280, 960 };
-		SDL_RenderCopy( render, image, EntireRect, &dst_rect );
+		const Rect dst_rect { 0, 0, winSize.x, winSize.y };
+		SDL_RenderCopy( render, image, EntireRect, &dst_rect /* same result as EntireRect */ );
 	}
 
 	// Poor persons benchmark
@@ -91,7 +93,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 			if( blendedText != nullptr )
 				SDL_DestroyTexture( blendedText );
 
-			Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, 1250 );
+			Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, winSize.x - 30 );
 			blendedText = SDL_CreateTextureFromSurface( render, surf );
 			SDL_FreeSurface( surf );
 
