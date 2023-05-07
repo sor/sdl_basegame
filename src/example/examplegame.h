@@ -1,9 +1,9 @@
 #pragma once
 
-#include "global.h"
+#include "../global.h"
 
-#include "gamebase.h"
-#include "recthelper.h"
+#include "../gamebase.h"
+#include "../recthelper.h"
 
 class ExampleGame;
 class IntroState;
