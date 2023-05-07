@@ -20,6 +20,7 @@
 #include <SDL_video.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 
 using uint  = unsigned int;
 using u8    = std::uint8_t;
@@ -38,6 +39,7 @@ using Texture   = SDL_Texture;
 using Renderer  = SDL_Renderer;
 using Window    = SDL_Window;
 using Font      = TTF_Font;
+using Music     = Mix_Music;
 
 using std::min;
 using std::max;

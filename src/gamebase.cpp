@@ -14,11 +14,24 @@ Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
 		exit( 2 );
 	}
 
-	// The "!" here is correct
-	if( !IMG_Init( IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP ) )
+	constexpr IMG_InitFlags imgFlags = (IMG_InitFlags) (IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP);
+	if( IMG_Init( imgFlags ) != imgFlags )
 	{
 		cerr << "IMG_Init failed: " << IMG_GetError() << endl;
 		exit( 3 );
+	}
+
+	constexpr MIX_InitFlags mixFlags = (MIX_InitFlags) (MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_OPUS);
+	if( Mix_Init( mixFlags ) != mixFlags )
+	{
+		cerr << "Mix_Init failed: " << Mix_GetError() << endl;
+		exit( 4 );
+	}
+
+	if( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024 ) < 0 )
+	{
+		cerr << "Mix_OpenAudio failed: " << Mix_GetError() << endl;
+		exit( 5 );
 	}
 
 	window = SDL_CreateWindow(
@@ -125,9 +138,17 @@ int Game::Run()
 
 		SDL_GetWindowSize(window, &windowSize.x, &windowSize.y);
 
+
 		currentState->Events( frame, totalMSec, deltaTF );
+
 		currentState->Update( frame, totalMSec, deltaTF );
-		SDL_RenderClear( render );
+
+		const Color clear = currentState->GetClearColor();
+		if( clear.a != SDL_ALPHA_TRANSPARENT)
+		{
+			SDL_SetRenderDrawColor( render, clear.r, clear.g, clear.b, clear.a );
+			SDL_RenderClear( render );
+		}
 		currentState->Render( frame, totalMSec, deltaTFNeeded );
 		SDL_RenderPresent( render );
 

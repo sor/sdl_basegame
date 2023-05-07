@@ -25,6 +25,7 @@ class IntroState : public GameState
 protected:
 	Font    * font              = nullptr;
 	Texture * image             = nullptr;
+	Music   * music             = nullptr;
 	Texture * blendedText       = nullptr;
 	Point     blendedTextSize   = { 0, 0 };
 

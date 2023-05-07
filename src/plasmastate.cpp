@@ -11,9 +11,7 @@ void PlasmaState::Init()
 
 	// Set to smoothed rendering for the plasma texture
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
-
 	plasmaTex = SDL_CreateTexture( render, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
-
 	// Reset to "pixelated" for further textures
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
 }
@@ -102,7 +100,7 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 	if( blendedText == nullptr )
 	{
 		constexpr const char * text =
-			"Use down and up arrow keys\n"
+			"Use [DOWN] and [UP] arrow keys\n"
 			" to change the brightness\n"
 			"  of the plasma effect!";
 

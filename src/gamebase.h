@@ -23,8 +23,9 @@ protected:
 	Point windowSize;
 
 public:
-	[[nodiscard]]
-	bool IsRunning() const { return isRunning; }
+	[[nodiscard]]       bool    IsRunning()     const { return isRunning; }
+	[[nodiscard]]       Point & GetWindowSize()       { return windowSize; }
+	[[nodiscard]] const Point & GetWindowSize() const { return windowSize; }
 
 	explicit Game(
 		const char * windowTitle = "SDL Game",
@@ -40,9 +41,6 @@ public:
 	virtual int Run();
 
 	virtual void SetNextState( int index ) { nextStateIdx = index; }
-
-    [[nodiscard]]       Point & GetWindowSize()       { return windowSize; }
-	[[nodiscard]] const Point & GetWindowSize() const { return windowSize; }
 
 protected:
 	virtual void ActivateNextState();
@@ -79,6 +77,9 @@ protected:
 	Renderer * render;
 
 public:
+	[[nodiscard]] virtual bool  IsFPSLimited()  const { return true; }
+	[[nodiscard]] virtual Color GetClearColor() const { return Color { 0, 0, 0, SDL_ALPHA_OPAQUE }; }
+
 	explicit GameState( Game && game, Renderer * render ) = delete; // prevent taking an rvalue
 	explicit GameState( Game &  game, Renderer * render )
 		: game( game ),
@@ -89,9 +90,6 @@ public:
 	GameState &  operator=( const GameState &  ) = delete;
 	GameState && operator=(       GameState && ) = delete;
     virtual ~GameState() = default;
-
-	[[nodiscard]]
-	virtual bool IsFPSLimited() const { return true; }
 
 	virtual void Init() {}
 	virtual void UnInit() {}

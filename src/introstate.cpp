@@ -6,16 +6,36 @@ void IntroState::Init()
 	{
 		font = TTF_OpenFont( BasePath "asset/font/RobotoSlab-Bold.ttf", 24 );
 		TTF_SetFontHinting( font, TTF_HINTING_LIGHT );
+		if( !font )
+			cerr << "TTF_OpenFont failed: " << TTF_GetError() << endl;
 	}
 
 	if( !image )
 	{
 		image = IMG_LoadTexture( render, BasePath "asset/graphic/background.png" );
+		if( !image )
+			cerr << "IMG_LoadTexture failed: " << IMG_GetError() << endl;
+	}
+
+	if( !music )
+	{
+		music = Mix_LoadMUS( BasePath "asset/music/severance.opus" );
+		if( !music )
+			cerr << "Mix_LoadMUS failed: " << Mix_GetError() << endl;
+		else
+			Mix_PlayMusic( music, -1 );
+	}
+	else if( Mix_PausedMusic() )
+	{
+		Mix_ResumeMusic();
 	}
 }
 
 void IntroState::UnInit()
 {
+	if( !Mix_PausedMusic() )
+		Mix_PauseMusic();
+
 	// Keep everything loaded/allocated is also an option
 	/*
 	TTF_CloseFont( font );
@@ -43,7 +63,23 @@ void IntroState::Events( const u32 frame, const u32 totalMSec, const float delta
 			{
 				const Keysym & what_key = event.key.keysym;
 
-				if( what_key.scancode == SDL_SCANCODE_F9 )
+				if( what_key.scancode == SDL_SCANCODE_F1 && event.key.repeat == 0 )
+				{
+					if( Mix_PausedMusic() )
+						Mix_ResumeMusic();
+					else
+						Mix_PauseMusic();
+
+				}
+				else if( what_key.scancode == SDL_SCANCODE_F2 && event.key.repeat == 0 )
+				{
+					if( Mix_VolumeMusic( -1 ) == MIX_MAX_VOLUME )
+						Mix_VolumeMusic( 0 );
+					else
+						Mix_VolumeMusic( MIX_MAX_VOLUME );
+
+				}
+				else if( what_key.scancode == SDL_SCANCODE_F9 )
 				{
 					// crash/shutdown, since State #6 does not exist
 					game.SetNextState( 99 );
@@ -86,8 +122,9 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 		if( blendedText == nullptr )
 		{
 			constexpr const char * text =
-				"                                          --== Super Mega Gamey Game 3000 ==--\n\n"
+				"                                          --== Introscreen of my Super Mega Gamey Game 3000 ==--\n\n"
 				"Dies ist ein Typoblindtext. An ihm kann man sehen, ob alle Buchstaben da sind und wie sie aussehen. Manchmal benutzt man Worte wie Hamburgefonts, Rafgenduks oder Handgloves, um Schriften zu testen. Manchmal Sätze, die alle Buchstaben des Alphabets enthalten - man nennt diese Sätze »Pangrams«. Sehr bekannt ist dieser: The quick brown fox jumps over the lazy old dog. Oft werden in Typoblindtexte auch fremdsprachige Satzteile eingebaut (AVAIL® and Wefox™ are testing aussi la Kerning), um die Wirkung in anderen Sprachen zu testen. In Lateinisch sieht zum Beispiel fast jede Schrift gut aus. Quod erat demonstrandum. Seit 1975 fehlen in den meisten Testtexten die Zahlen, weswegen nach TypoGb. 204 § ab dem Jahr 2034 Zahlen in 86 der Texte zur Pflicht werden. Nichteinhaltung wird mit bis zu 245 € oder 368 $ bestraft. Genauso wichtig in sind mittlerweile auch Âçcèñtë, die in neueren Schriften aber fast immer enthalten sind. Ein wichtiges aber schwierig zu integrierendes Feld sind OpenType-Funktionalitäten. Je nach Software und Voreinstellungen können eingebaute Kapitälchen, Kerning oder Ligaturen (sehr pfiffig) nicht richtig dargestellt werden."
+				"\n\nRoyality free music by Karl Casey @ White Bat Audio\n  - Press [F1] to (un)pause music.\n  - Press [F2] to (un)mute music.\nSource: https://www.youtube.com/watch?v=aFITtvK64B4"
 				"\n\nPress any key to continue!";
 
 			if( blendedText != nullptr )
