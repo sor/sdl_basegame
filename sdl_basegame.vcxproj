@@ -157,24 +157,43 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\examplegame.cpp" />
-    <ClCompile Include="src\gamebase.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\plasmastate.cpp" />
-    <ClCompile Include="src\shooterstate.cpp" />
-    <ClCompile Include="src\sortstate.cpp" />
-    <ClCompile Include="src\introstate.cpp" />
-    <ClCompile Include="src\camerastate.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\examplegame.h" />
-    <ClInclude Include="src\gamebase.h" />
     <ClInclude Include="src\global.h" />
+    <ClInclude Include="src\gamebase.h" />
+    <ClCompile Include="src\gamebase.cpp" />
+    <ClInclude Include="src\recthelper.h" />
+    <ClCompile Include="src\example\pongmain.cpp" />
+    <ClCompile Include="src\example\main.cpp" />
+    <ClInclude Include="src\example\examplegame.h" />
+    <ClCompile Include="src\example\examplegame.cpp" />
+    <ClCompile Include="src\example\camerastate.cpp" />
+    <ClCompile Include="src\example\introstate.cpp" />
+    <ClCompile Include="src\example\plasmastate.cpp" />
+    <ClCompile Include="src\example\shooterstate.cpp" />
+    <ClCompile Include="src\example\sortstate.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="asset\music\severance.ogg" />
+    <None Include="classdiagram.drawio" />
+    <None Include="LICENSE" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="asset\graphic\background.png" />
+    <Image Include="asset\graphic\ball.png" />
+    <Image Include="asset\graphic\bg-layer-1.png" />
+    <Image Include="asset\graphic\bg-layer-2.png" />
+    <Image Include="asset\graphic\bg-layer-3.png" />
+    <Image Include="asset\graphic\bg-layer-4.png" />
+    <Image Include="asset\graphic\fire.png" />
+    <Image Include="asset\graphic\poison.png" />
+    <Image Include="classdiagram.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="asset\font\MonkeyIsland-1991-refined.ttf" />
+    <Font Include="asset\font\RobotoSlab-Bold.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

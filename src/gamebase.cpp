@@ -21,7 +21,7 @@ Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
 		exit( 3 );
 	}
 
-	constexpr MIX_InitFlags mixFlags = (MIX_InitFlags) (MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_OPUS);
+	constexpr MIX_InitFlags mixFlags = (MIX_InitFlags) (MIX_INIT_MP3 | MIX_INIT_OGG);
 	if( Mix_Init( mixFlags ) != mixFlags )
 	{
 		cerr << "Mix_Init failed: " << Mix_GetError() << endl;

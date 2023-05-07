@@ -19,7 +19,7 @@ void IntroState::Init()
 
 	if( !music )
 	{
-		music = Mix_LoadMUS( BasePath "asset/music/severance.opus" );
+		music = Mix_LoadMUS( BasePath "asset/music/severance.ogg" );
 		if( !music )
 			cerr << "Mix_LoadMUS failed: " << Mix_GetError() << endl;
 		else
