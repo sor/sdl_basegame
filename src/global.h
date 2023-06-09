@@ -22,10 +22,15 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 
-using uint  = unsigned int;
-using u8    = std::uint8_t;
+using i8    = std::int8_t;
+using i16   = std::int16_t;
 using i32   = std::int32_t;
+using i64   = std::int64_t;
+using u8    = std::uint8_t;
+using u16   = std::uint16_t;
 using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using uint  = unsigned int;
 
 using Color     = SDL_Color;
 using Event     = SDL_Event;
@@ -39,6 +44,8 @@ using Texture   = SDL_Texture;
 using Renderer  = SDL_Renderer;
 using Window    = SDL_Window;
 using Font      = TTF_Font;
+using Chunk     = Mix_Chunk;
+//using Sound     = Mix_Chunk;
 using Music     = Mix_Music;
 
 using std::min;
@@ -59,7 +66,7 @@ using std::cout, std::cin, std::cerr, std::endl;
 #define BasePath "../"
 #endif
 
-#if defined( _DEBUG )
+#if defined( DEBUG )
 #define DebugOnly( ... ) __VA_ARGS__
 #define IfDebug if constexpr( true )
 #else
