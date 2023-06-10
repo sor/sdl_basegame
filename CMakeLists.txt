@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required( VERSION 3.20 )
 project( sdl_basegame )
 
 set( CMAKE_C_STANDARD   17 )
@@ -93,6 +93,8 @@ find_package( SDL2_net   CONFIG REQUIRED )
 
 if( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
     set( CLANG 1 ) # Why does this exist for MSVC but not Clang or GCC?
+elseif( CMAKE_CXX_COMPILER_ID MATCHES "GNU" )
+    set( GCC 1 )
 endif()
 
 option( USE_OpenMP "Use OpenMP" ON )
