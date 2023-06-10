@@ -263,3 +263,4 @@ __pycache__/
 
 Thumbs.db
 /cmake-build-*/
+vcpkg.lock

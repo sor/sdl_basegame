@@ -8,7 +8,8 @@
   }, {
     "name" : "sdl2-ttf",
     "version>=" : "2.20.2",
-    "features" : [ "harfbuzz" ]
+    "$activate_for_slow_but_nice_font_rendering": "remove the $ in the line below",
+    "$features" : [ "harfbuzz" ]
   }, {
     "name" : "sdl2-mixer",
     "version>=" : "2.6.3#1",

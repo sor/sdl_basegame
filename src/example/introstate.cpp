@@ -118,7 +118,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 	// Poor persons benchmark
 	//for (uint x = 0; x < 100; ++x)
 	{
-		// uncomment to use the cache, comment out to disable
+		// Comment out to disable the cache. Uses 5ms without / 20 ms with harfbuzz
 		if( blendedText == nullptr )
 		{
 			constexpr const char * text =
