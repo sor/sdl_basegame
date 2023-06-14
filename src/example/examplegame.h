@@ -26,6 +26,7 @@ protected:
 	Font    * font              = nullptr;
 	Texture * image             = nullptr;
 	Music   * music             = nullptr;
+	Chunk   * sound             = nullptr;
 	Texture * blendedText       = nullptr;
 	Point     blendedTextSize   = { 0, 0 };
 
@@ -161,6 +162,7 @@ protected:
 	float progress = 0;
 	u32 shootCooldown = 0;
 
+	Chunk   * sound         = nullptr;
 	Texture * projectile[4] = { nullptr };
 
 	Vector<FPoint> enemyProjectiles;

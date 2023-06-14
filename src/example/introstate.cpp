@@ -29,6 +29,13 @@ void IntroState::Init()
 	{
 		Mix_ResumeMusic();
 	}
+
+	if( !sound )
+	{
+		sound = Mix_LoadWAV( BasePath "asset/sound/pew.wav" );
+		if( !sound )
+			cerr << "Mix_LoadWAV failed: " << Mix_GetError() << endl;
+	}
 }
 
 void IntroState::UnInit()
@@ -78,6 +85,10 @@ void IntroState::Events( const u32 frame, const u32 totalMSec, const float delta
 					else
 						Mix_VolumeMusic( MIX_MAX_VOLUME );
 
+				}
+				else if( what_key.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
+				{
+					Mix_PlayChannel( -1, sound, 0 );
 				}
 				else if( what_key.scancode == SDL_SCANCODE_F9 )
 				{

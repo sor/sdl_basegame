@@ -12,6 +12,13 @@ void ShooterState::Init()
 
 		SDL_SetTextureColorMod( projectile[2], 191, 191, 191 );
 	}
+
+	if( !sound )
+	{
+		sound = Mix_LoadWAV( BasePath "asset/sound/pew.wav" );
+		if( !sound )
+			cerr << "Mix_LoadWAV failed: " << Mix_GetError() << endl;
+	}
 }
 
 void ShooterState::UnInit()
@@ -70,6 +77,7 @@ void ShooterState::Events( const u32 frame, const u32 totalMSec, const float del
 					(float)event.motion.y } - mouseOffsetEased - cam;
 				//enemyProjectiles.push_back( mousePosOffsetted );
 				SpawnProjectile( mousePosOffsetted );
+				Mix_PlayChannel( -1, sound, 0 );
 			}
 		}
 		else if( event.type == SDL_MOUSEBUTTONUP )
