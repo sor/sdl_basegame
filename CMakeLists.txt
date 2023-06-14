@@ -2,16 +2,21 @@ cmake_minimum_required( VERSION 3.20 )
 project( sdl_basegame )
 
 set( CMAKE_C_STANDARD   17 )
-set( CMAKE_CXX_STANDARD 17 )
+set( CMAKE_CXX_STANDARD 20 )
 
 #set(      VCPKG_VERBOSE                 ON )
-set(      VCPKG_BOOTSTRAP_OPTIONS       "--disableMetrics" )
+set(      VCPKG_BOOTSTRAP_OPTIONS       "-disableMetrics" )
 set(      VCPKG_INSTALL_OPTIONS         "--no-print-usage")
 set(      VCPKG_INSTALLED_DIR           ${CMAKE_SOURCE_DIR}/vcpkg_installed ) # comment this out to have a vcpkg_installed per build target
 set(      VCPKG_DISABLE_METRICS         1 )
 set( $ENV{VCPKG_DISABLE_METRICS}        1 )
 set(      DOTNET_CLI_TELEMETRY_OPTOUT   1 )
 set( $ENV{DOTNET_CLI_TELEMETRY_OPTOUT}  1 )
+
+if( NOT MSVC )
+    # Might rework MSVC to align with the adjusted CLion paths
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+endif()
 
 # Add path of current cmake(.exe) to PATH
 cmake_path( GET CMAKE_COMMAND PARENT_PATH CMAKE_COMMAND_PATH )
@@ -103,11 +108,18 @@ if( USE_OpenMP )
 endif()
 
 if( MSVC )
-    add_compile_options( /W4 )
+    add_compile_options( /W4 /wd4100 /we4456 )
 else()
     # needs to be before all the -Wno-*
     set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wall -Wextra" )
     set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wall -Wextra" )
+
+    if( GCC )
+        set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           -Wshadow=local -Werror=shadow=local" )
+        set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wshadow=local -Werror=shadow=local" )
+    elseif( CLANG )
+        # TODO: Clang uses different names
+    endif()
 
     set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wno-unused-parameter" )   # baseclass functions have plenty unused parameters
     set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wno-unused-parameter" )   # baseclass functions have plenty unused parameters
@@ -160,7 +172,7 @@ target_include_directories( sdl_basegame
 
 target_link_libraries( sdl_basegame
         PRIVATE
-        #$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,               SDL2::SDL2,             SDL2::SDL2-static>
         $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,       SDL2_ttf::SDL2_ttf,     SDL2_ttf::SDL2_ttf-static>
         $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,   SDL2_mixer::SDL2_mixer, SDL2_mixer::SDL2_mixer-static>

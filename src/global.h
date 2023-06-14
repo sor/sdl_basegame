@@ -32,6 +32,9 @@ using u32   = std::uint32_t;
 using u64   = std::uint64_t;
 using uint  = unsigned int;
 
+using isize = std::ptrdiff_t;
+using usize = std::size_t;
+
 using Color     = SDL_Color;
 using Event     = SDL_Event;
 using Point     = SDL_Point;
@@ -60,10 +63,18 @@ using Duration  = Clock::duration;
 
 using std::cout, std::cin, std::cerr, std::endl;
 
+// _MSC_VER is also true for Clang on Windows, which is fine, but we might need a branch for CLion vs Visual Studio
 #ifdef _MSC_VER
-#define BasePath ""
+//#define BasePath "../../../"    // out/build/${architecture}-${configuration}
 #else
-#define BasePath "../"
+//#define BasePath "../"          // cmake-build-${configuration}
+#endif
+
+#ifdef FINAL
+#define BasePath ""             // Put the binary in the root folder, parallel to assets/
+#else
+#define BasePath "../../../"    //    out/build/${architecture}-${configuration}
+                                // OR build/${configuration}-${compiler}/bin
 #endif
 
 #if defined( DEBUG )
