@@ -4,9 +4,9 @@ project( sdl_basegame )
 set( CMAKE_C_STANDARD   17 )
 set( CMAKE_CXX_STANDARD 20 )
 
-#set(      VCPKG_VERBOSE                 ON )
+set(      VCPKG_VERBOSE                 OFF )
 set(      VCPKG_BOOTSTRAP_OPTIONS       "-disableMetrics" )
-set(      VCPKG_INSTALL_OPTIONS         "--no-print-usage")
+set(      VCPKG_INSTALL_OPTIONS         "--no-print-usage")                         # disable this line when adding new packages
 set(      VCPKG_INSTALLED_DIR           ${CMAKE_SOURCE_DIR}/build/vcpkg_installed ) # comment this out to have a vcpkg_installed per build target
 set(      VCPKG_DISABLE_METRICS         1 )
 set( $ENV{VCPKG_DISABLE_METRICS}        1 )
@@ -97,8 +97,10 @@ find_package( SDL2_mixer CONFIG REQUIRED )
 find_package( SDL2_image CONFIG REQUIRED )
 find_package( SDL2_net   CONFIG REQUIRED )
 
+
+# Why does MSVC exist, but not CLANG or GCC?
 if( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
-    set( CLANG 1 ) # Why does this exist for MSVC but not Clang or GCC?
+    set( CLANG 1 )
 elseif( CMAKE_CXX_COMPILER_ID MATCHES "GNU" )
     set( GCC 1 )
 endif()

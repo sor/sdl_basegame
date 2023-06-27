@@ -35,6 +35,12 @@ void PlasmaState::Events( const u32 frame, const u32 totalMSec, const float delt
 	{
 		if( game.HandleEvent( event ) )
 			continue;
+
+		switch( event.type )
+		{
+			case SDL_MOUSEWHEEL:
+				brightness += event.wheel.y*3;
+		}
 	}
 
 	const u8 * key_array = SDL_GetKeyboardState( nullptr );
@@ -87,8 +93,6 @@ void PlasmaState::Update( const u32 frame, const u32 totalMSec, const float delt
 
 void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float deltaT )
 {
-	// No clear needed since everything is overdrawn
-
 	// Draw the plasma
 	{
 		SDL_UpdateTexture( plasmaTex, EntireRect, plasmaSrf->pixels, plasmaSrf->pitch );
@@ -100,9 +104,9 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 	if( blendedText == nullptr )
 	{
 		constexpr const char * text =
-			"Use [DOWN] and [UP] arrow keys\n"
-			" to change the brightness\n"
-			"  of the plasma effect!";
+			"Use mouse-wheel or [DOWN] and [UP] arrow keys\n"
+			"                to change the brightness\n"
+			"                  of the plasma effect!";
 
 		if( blendedText != nullptr )
 			SDL_DestroyTexture( blendedText );
@@ -120,7 +124,7 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 	// Draw the text on top
 	{
 		const Point p {
-			game.GetWindowSize().x / 3,
+			game.GetWindowSize().x / 5,
 			game.GetWindowSize().y - 150
 		};
 

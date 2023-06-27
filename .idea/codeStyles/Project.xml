@@ -5,6 +5,7 @@
       <option name="NAMESPACE_BRACE_PLACEMENT" value="2" />
       <option name="FUNCTION_BRACE_PLACEMENT" value="2" />
       <option name="BLOCK_BRACE_PLACEMENT" value="2" />
+      <option name="FUNCTION_CALL_ARGUMENTS_WRAP" value="5" />
       <option name="SPACE_BEFORE_TEMPLATE_DECLARATION_LT" value="true" />
       <option name="SPACE_WITHIN_FUNCTION_DECLARATION_PARENTHESES" value="true" />
       <option name="SPACE_WITHIN_FUNCTION_CALL_PARENTHESES" value="true" />
@@ -66,14 +67,16 @@
     </codeStyleSettings>
     <codeStyleSettings language="ObjectiveC">
       <option name="BLANK_LINES_AROUND_METHOD_IN_INTERFACE" value="0" />
-      <option name="BRACE_STYLE" value="2" />
+      <option name="BRACE_STYLE" value="5" />
       <option name="CLASS_BRACE_STYLE" value="2" />
+      <option name="ELSE_ON_NEW_LINE" value="true" />
       <option name="ALIGN_MULTILINE_CHAINED_METHODS" value="true" />
       <option name="SPACE_WITHIN_IF_PARENTHESES" value="true" />
       <option name="SPACE_WITHIN_WHILE_PARENTHESES" value="true" />
       <option name="SPACE_WITHIN_FOR_PARENTHESES" value="true" />
       <option name="SPACE_WITHIN_CATCH_PARENTHESES" value="true" />
       <option name="SPACE_WITHIN_SWITCH_PARENTHESES" value="true" />
+      <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true" />
       <option name="SPACE_BEFORE_IF_PARENTHESES" value="false" />
       <option name="SPACE_BEFORE_WHILE_PARENTHESES" value="false" />
       <option name="SPACE_BEFORE_FOR_PARENTHESES" value="false" />

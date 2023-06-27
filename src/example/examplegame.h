@@ -71,7 +71,7 @@ class PlasmaState final : public IntroState
 	Surface * plasmaSrf;
 	Texture * plasmaTex;
 
-	int brightness = 320;
+	int brightness = 160;
 
 	static constexpr const int Scale = 8;
 
