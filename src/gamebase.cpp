@@ -103,8 +103,7 @@ bool Game::HandleEvent( const Event event )
 			if( (what_key.mod & KMOD_ALT) &&
 			    (what_key.scancode == SDL_SCANCODE_F4) )
 			{
-				Event next_event; // = { .type = SDL_QUIT };
-				next_event.type = SDL_QUIT;
+				Event next_event = { .type = SDL_QUIT };
 				SDL_PushEvent( &next_event );
 				return true;
 			}

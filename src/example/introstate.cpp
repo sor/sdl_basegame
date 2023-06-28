@@ -29,6 +29,13 @@ void IntroState::Init()
 	{
 		Mix_ResumeMusic();
 	}
+
+	if( !sound )
+	{
+		sound = Mix_LoadWAV( BasePath "asset/sound/pew.wav" );
+		if( !sound )
+			cerr << "Mix_LoadWAV failed: " << Mix_GetError() << endl;
+	}
 }
 
 void IntroState::UnInit()
@@ -79,6 +86,10 @@ void IntroState::Events( const u32 frame, const u32 totalMSec, const float delta
 						Mix_VolumeMusic( MIX_MAX_VOLUME );
 
 				}
+				else if( what_key.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
+				{
+					Mix_PlayChannel( -1, sound, 0 );
+				}
 				else if( what_key.scancode == SDL_SCANCODE_F9 )
 				{
 					// crash/shutdown, since State #6 does not exist
@@ -118,7 +129,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 	// Poor persons benchmark
 	//for (uint x = 0; x < 100; ++x)
 	{
-		// uncomment to use the cache, comment out to disable
+		// Comment out to disable the cache. Uses 5ms without / 20 ms with harfbuzz
 		if( blendedText == nullptr )
 		{
 			constexpr const char * text =

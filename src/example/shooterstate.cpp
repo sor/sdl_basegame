@@ -12,6 +12,13 @@ void ShooterState::Init()
 
 		SDL_SetTextureColorMod( projectile[2], 191, 191, 191 );
 	}
+
+	if( !sound )
+	{
+		sound = Mix_LoadWAV( BasePath "asset/sound/pew.wav" );
+		if( !sound )
+			cerr << "Mix_LoadWAV failed: " << Mix_GetError() << endl;
+	}
 }
 
 void ShooterState::UnInit()
@@ -65,11 +72,12 @@ void ShooterState::Events( const u32 frame, const u32 totalMSec, const float del
 
 			if( event.motion.state != 0 )
 			{
-				const FPoint mousePos = FPoint {
+				const FPoint mousePosOffsetted = FPoint {
 					(float)event.motion.x,
 					(float)event.motion.y } - mouseOffsetEased - cam;
-				//enemyProjectiles.push_back( mousePos );
-				SpawnProjectile( mousePos );
+				//enemyProjectiles.push_back( mousePosOffsetted );
+				SpawnProjectile( mousePosOffsetted );
+				Mix_PlayChannel( -1, sound, 0 );
 			}
 		}
 		else if( event.type == SDL_MOUSEBUTTONUP )
@@ -383,8 +391,8 @@ void ShooterState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 	for(auto & e : enemies)
 	{
 		//const Point fluxCamI = { (int)fluxCam.x, (int)fluxCam.y };
-		const FRect pos = e + fluxCam;
-		SDL_RenderFillRectF( render, &pos );
+		const FRect posOffsetted = e + fluxCam;
+		SDL_RenderFillRectF( render, &posOffsetted );
 	}
 
 	for( int i = 3; i <= 3; ++i ) // Render the last 1 layers, rendered back to front

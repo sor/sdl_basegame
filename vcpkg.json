@@ -1,0 +1,26 @@
+{
+  "name" : "sdl-basegame",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "1e334d770ac71a89d1c36d51019e60dd08b68f76",
+  "dependencies" : [ {
+    "name" : "sdl2",
+    "version>=" : "2.26.5"
+  }, {
+    "name" : "sdl2-ttf",
+    "version>=" : "2.20.2",
+    "$activate_for_slow_but_nice_font_rendering": "remove the $ in the line below",
+    "$features" : [ "harfbuzz" ]
+  }, {
+    "name" : "sdl2-mixer",
+    "version>=" : "2.6.3#1",
+    "features" : [ "mpg123", "opusfile", "libflac" ]
+  }, {
+    "name" : "sdl2-image",
+    "version>=" : "2.6.3",
+    "features" : [ "libjpeg-turbo", "libwebp", "tiff" ]
+  }, {
+    "name" : "sdl2-net",
+    "version>=" : "2.2.0",
+    "features" : []
+  } ]
+}

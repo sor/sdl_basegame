@@ -1,6 +1,6 @@
 #pragma once
 
-#include "global.h"
+#include <global.h>
 
 constexpr const SDL_Rect * EntireRect = nullptr;
 

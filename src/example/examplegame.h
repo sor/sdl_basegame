@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../global.h"
+#include <global.h>
 
-#include "../gamebase.h"
-#include "../recthelper.h"
+#include <gamebase.h>
+#include <recthelper.h>
 
 class ExampleGame;
 class IntroState;
@@ -26,6 +26,7 @@ protected:
 	Font    * font              = nullptr;
 	Texture * image             = nullptr;
 	Music   * music             = nullptr;
+	Chunk   * sound             = nullptr;
 	Texture * blendedText       = nullptr;
 	Point     blendedTextSize   = { 0, 0 };
 
@@ -70,7 +71,7 @@ class PlasmaState final : public IntroState
 	Surface * plasmaSrf;
 	Texture * plasmaTex;
 
-	int brightness = 320;
+	int brightness = 160;
 
 	static constexpr const int Scale = 8;
 
@@ -161,6 +162,7 @@ protected:
 	float progress = 0;
 	u32 shootCooldown = 0;
 
+	Chunk   * sound         = nullptr;
 	Texture * projectile[4] = { nullptr };
 
 	Vector<FPoint> enemyProjectiles;

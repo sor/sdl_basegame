@@ -1,4 +1,4 @@
-#include "../global.h"
+#include <global.h>
 
 // rename "mainx" here to "main" to activate this example and rename the "main" in main.cpp to something else
 extern "C"

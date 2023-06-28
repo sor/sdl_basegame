@@ -1,5 +1,10 @@
 #pragma once
 
+#define _GLIBC_USE_DEPRECATED 0
+#define _GLIBCXX_USE_DEPRECATED 0
+#define _LIBCPP_ENABLE_DEPRECATION_WARNINGS 2
+#define WIN32_LEAN_AND_MEAN
+
 #include <cmath>
 #include <cstdarg>
 #include <cstddef>
@@ -22,10 +27,18 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 
-using uint  = unsigned int;
-using u8    = std::uint8_t;
+using i8    = std::int8_t;
+using i16   = std::int16_t;
 using i32   = std::int32_t;
+using i64   = std::int64_t;
+using u8    = std::uint8_t;
+using u16   = std::uint16_t;
 using u32   = std::uint32_t;
+using u64   = std::uint64_t;
+using uint  = unsigned int;
+
+using isize = std::ptrdiff_t;
+using usize = std::size_t;
 
 using Color     = SDL_Color;
 using Event     = SDL_Event;
@@ -39,6 +52,8 @@ using Texture   = SDL_Texture;
 using Renderer  = SDL_Renderer;
 using Window    = SDL_Window;
 using Font      = TTF_Font;
+using Chunk     = Mix_Chunk;
+//using Sound     = Mix_Chunk;
 using Music     = Mix_Music;
 
 using std::min;
@@ -53,13 +68,21 @@ using Duration  = Clock::duration;
 
 using std::cout, std::cin, std::cerr, std::endl;
 
+// _MSC_VER is also true for Clang on Windows, which is fine, but we might need a branch for CLion vs Visual Studio
 #ifdef _MSC_VER
-#define BasePath ""
+//#define BasePath "../../../"    // out/build/${architecture}-${configuration}
 #else
-#define BasePath "../"
+//#define BasePath "../"          // cmake-build-${configuration}
 #endif
 
-#if defined( _DEBUG )
+#ifdef FINAL
+#define BasePath ""             // Put the binary in the root folder, parallel to assets/
+#else
+#define BasePath "../../../"    //    out/build/${architecture}-${configuration}
+                                // OR build/${configuration}-${compiler}/bin
+#endif
+
+#if defined( DEBUG )
 #define DebugOnly( ... ) __VA_ARGS__
 #define IfDebug if constexpr( true )
 #else
