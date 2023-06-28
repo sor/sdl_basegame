@@ -17,7 +17,7 @@ void ShooterState::Init()
 	{
 		sound = Mix_LoadWAV( BasePath "asset/sound/pew.wav" );
 		if( !sound )
-			cerr << "Mix_LoadWAV failed: " << Mix_GetError() << endl;
+			print( stderr, "Mix_LoadWAV failed: {}\n", Mix_GetError() );
 	}
 }
 
@@ -415,11 +415,11 @@ void ShooterState::SpawnProjectile( const FPoint pos )
 			++enemyProjReuse;
 			if( enemyProjReuse == enemyProjectiles.end() ) [[unlikely]]
 			{
-				DebugOnly( cout << "seeking wrapped around" << endl; )
+				DebugOnly( print( "seeking wrapped around\n" ); )
 				enemyProjReuse = enemyProjectiles.begin();
 			}
 		}
-		DebugOnly( cout << "seeked for " << count << " entries in enemyProjectiles until a reusable was found" << endl; )
+		DebugOnly( print( "seeked for {} entries in enemyProjectiles until a reusable was found\n", count ); )
 		*enemyProjReuse = pos;
 		--numDeadEnemyProj;
 	}
@@ -434,7 +434,7 @@ void ShooterState::SpawnProjectile( const FPoint pos )
 		// Determine if iterators were invalidated
 		if( oldCapa != newCapa ) [[unlikely]]
 		{
-			cout << oldCapa << " : oc / nc : " << newCapa << endl;
+			DebugOnly( print( "oc: {} nc: {}\n", oldCapa, newCapa ); )
 			enemyProjReuse = enemyProjectiles.begin();
 		}
 	}
@@ -451,11 +451,11 @@ void ShooterState::SpawnMyProjectile( const FPoint pos )
 			++myProjReuse;
 			if( myProjReuse == myProjectiles.end() ) [[unlikely]]
 			{
-				DebugOnly( cout << "seeking wrapped around" << endl; )
+				DebugOnly( print( "seeking wrapped around" ); )
 				myProjReuse = myProjectiles.begin();
 			}
 		}
-		DebugOnly( cout << "seeked for " << count << " entries in myProjectiles until a reusable was found" << endl; )
+		DebugOnly( print( "seeked for {} entries in myProjectiles until a reusable was found\n", count ); )
 		*myProjReuse = pos;
 		--numDeadMyProj;
 	}
@@ -470,7 +470,7 @@ void ShooterState::SpawnMyProjectile( const FPoint pos )
 		// Determine if iterators were invalidated
 		if( oldCapa != newCapa ) [[unlikely]]
 		{
-			cout << oldCapa << " : oc / nc : " << newCapa << endl;
+			DebugOnly( print( "oc: {} nc: {}\n", oldCapa, newCapa ); )
 			myProjReuse = myProjectiles.begin();
 		}
 	}

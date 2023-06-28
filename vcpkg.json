@@ -22,5 +22,7 @@
     "name" : "sdl2-net",
     "version>=" : "2.2.0",
     "features" : []
+  }, {
+    "name" : "fmt"
   } ]
 }

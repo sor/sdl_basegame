@@ -12,11 +12,13 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
-#include <iostream>
+//#include <iostream>
 #include <memory>
-#include <sstream>
+//#include <sstream>
 #include <string>
 #include <vector>
+
+#include <fmt/core.h>   // https://fmt.dev/latest/index.html
 
 #include <SDL_stdinc.h>
 #include <SDL_error.h>
@@ -66,7 +68,8 @@ using Clock     = std::chrono::high_resolution_clock;
 using TimePoint = Clock::time_point;
 using Duration  = Clock::duration;
 
-using std::cout, std::cin, std::cerr, std::endl;
+//using std::cout, std::cin, std::cerr, std::endl;
+using fmt::print, fmt::println, fmt::format;
 
 // _MSC_VER is also true for Clang on Windows, which is fine, but we might need a branch for CLion vs Visual Studio
 #ifdef _MSC_VER

@@ -7,21 +7,21 @@ void IntroState::Init()
 		font = TTF_OpenFont( BasePath "asset/font/RobotoSlab-Bold.ttf", 24 );
 		TTF_SetFontHinting( font, TTF_HINTING_LIGHT );
 		if( !font )
-			cerr << "TTF_OpenFont failed: " << TTF_GetError() << endl;
+			print( stderr, "TTF_OpenFont failed: {}\n", TTF_GetError() );
 	}
 
 	if( !image )
 	{
 		image = IMG_LoadTexture( render, BasePath "asset/graphic/background.png" );
 		if( !image )
-			cerr << "IMG_LoadTexture failed: " << IMG_GetError() << endl;
+			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
 	}
 
 	if( !music )
 	{
 		music = Mix_LoadMUS( BasePath "asset/music/severance.ogg" );
 		if( !music )
-			cerr << "Mix_LoadMUS failed: " << Mix_GetError() << endl;
+			print( stderr, "Mix_LoadMUS failed: {}\n", Mix_GetError() );
 		else
 			Mix_PlayMusic( music, -1 );
 	}
@@ -34,7 +34,7 @@ void IntroState::Init()
 	{
 		sound = Mix_LoadWAV( BasePath "asset/sound/pew.wav" );
 		if( !sound )
-			cerr << "Mix_LoadWAV failed: " << Mix_GetError() << endl;
+			print( stderr, "Mix_LoadWAV failed: {}\n", Mix_GetError() );
 	}
 }
 

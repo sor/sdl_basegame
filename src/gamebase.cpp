@@ -4,33 +4,33 @@ Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
 {
 	if( SDL_Init( SDL_INIT_EVERYTHING ) )
 	{
-		cerr << "SDL_Init failed: " << SDL_GetError() << endl;
+		print( stderr, "SDL_Init failed: {}\n", SDL_GetError() );
 		exit( 1 );
 	}
 
 	if( TTF_Init() )
 	{
-		cerr << "TTF_Init failed: " << TTF_GetError() << endl;
+		print( stderr, "TTF_Init failed: {}\n", TTF_GetError() );
 		exit( 2 );
 	}
 
 	constexpr IMG_InitFlags imgFlags = (IMG_InitFlags) (IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP);
 	if( IMG_Init( imgFlags ) != imgFlags )
 	{
-		cerr << "IMG_Init failed: " << IMG_GetError() << endl;
+		print( stderr, "IMG_Init failed: {}\n", IMG_GetError() );
 		exit( 3 );
 	}
 
 	constexpr MIX_InitFlags mixFlags = (MIX_InitFlags) (MIX_INIT_MP3 | MIX_INIT_OGG);
 	if( Mix_Init( mixFlags ) != mixFlags )
 	{
-		cerr << "Mix_Init failed: " << Mix_GetError() << endl;
+		print( stderr, "Mix_Init failed: {}\n", Mix_GetError() );
 		exit( 4 );
 	}
 
 	if( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024 ) < 0 )
 	{
-		cerr << "Mix_OpenAudio failed: " << Mix_GetError() << endl;
+		print( stderr, "Mix_OpenAudio failed: {}\n", Mix_GetError() );
 		exit( 5 );
 	}
 
@@ -44,8 +44,8 @@ Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
 
 	if( window == nullptr )
 	{
-		cerr << "Window could not be created: " << SDL_GetError() << endl;
-		exit( 4 );
+		print( stderr, "Window could not be created: {}\n", SDL_GetError() );
+		exit( 6 );
 	}
 
 	render = SDL_CreateRenderer(
@@ -58,8 +58,8 @@ Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
 
 	if( render == nullptr )
 	{
-		cerr << "Renderer could not be created: " << SDL_GetError() << endl;
-		exit( 5 );
+		print( stderr, "Renderer could not be created: {}\n", SDL_GetError() );
+		exit( 7 );
 	}
 
 	allStates.reserve( 10 );
@@ -181,7 +181,7 @@ void Game::ActivateNextState()
 		// Load the state or die
 		if( nextStateIdx >= (int)allStates.size() || allStates[nextStateIdx] == nullptr )
 		{
-			cerr << "Activated out of range or nullptr state with the index: " << nextStateIdx << endl;
+			print( stderr, "Activated out of range or nullptr state with the index: {}\n", nextStateIdx );
 			exit( 11 );
 		}
 		else
@@ -222,9 +222,8 @@ void Game::OutputPerformanceInfo( const TimePoint current, const Duration needed
 		case PerformanceDrawMode::Title:
 			if( passedTime > 250ms )
 			{
-				std::ostringstream oss;
-				oss << AverageMSecPerFrame() << "ms";
-				SDL_SetWindowTitle( window, oss.str().c_str() );
+				const std::string avgms = format( "{}ms", AverageMSecPerFrame() );
+				SDL_SetWindowTitle( window, avgms.c_str() );
 				ResetPerformanceInfo( current );
 			}
 			break;
@@ -232,7 +231,7 @@ void Game::OutputPerformanceInfo( const TimePoint current, const Duration needed
 		case PerformanceDrawMode::OStream:
 			if( passedTime > 1000ms )
 			{
-				cout << AverageMSecPerFrame() << "ms" << endl;
+				print( "{}ms", AverageMSecPerFrame() );
 				ResetPerformanceInfo( current );
 			}
 			break;

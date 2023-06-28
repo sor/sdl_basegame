@@ -12,7 +12,7 @@ try
 }
 catch( ... )
 {
-	std::cout << "Non-SDL Exception has occurred!" << std::endl;
+	print( "Non-SDL Exception has occurred!\n" );
 
 	// put a breakpoint in this line, to prevent the shell from closing
 	return 66;

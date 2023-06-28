@@ -12,6 +12,7 @@ set(      VCPKG_DISABLE_METRICS         1 )
 set( $ENV{VCPKG_DISABLE_METRICS}        1 )
 set(      DOTNET_CLI_TELEMETRY_OPTOUT   1 )
 set( $ENV{DOTNET_CLI_TELEMETRY_OPTOUT}  1 )
+set(      FMT_HEADER_ONLY               1 )
 
 if( NOT MSVC )
     # Might rework MSVC to align with the adjusted CLion paths
@@ -96,6 +97,7 @@ find_package( SDL2_ttf   CONFIG REQUIRED )
 find_package( SDL2_mixer CONFIG REQUIRED )
 find_package( SDL2_image CONFIG REQUIRED )
 find_package( SDL2_net   CONFIG REQUIRED )
+find_package( fmt        CONFIG REQUIRED )
 
 
 # Why does MSVC exist, but not CLANG or GCC?
@@ -171,6 +173,7 @@ target_include_directories( sdl_basegame
         PRIVATE
         src
         ${SDL2_INCLUDE_DIR}
+        ${FMT_INCLUDE_DIR}
         )
 
 target_link_libraries( sdl_basegame
@@ -181,5 +184,6 @@ target_link_libraries( sdl_basegame
         $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,   SDL2_mixer::SDL2_mixer, SDL2_mixer::SDL2_mixer-static>
         $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,   SDL2_image::SDL2_image, SDL2_image::SDL2_image-static>
         $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,       SDL2_net::SDL2_net,     SDL2_net::SDL2_net-static>
+        $<IF:${FMT_HEADER_ONLY},                        fmt::fmt-header-only,   fmt::fmt>
         $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_CXX>
         )
