@@ -24,5 +24,7 @@
     "features" : []
   }, {
     "name" : "fmt"
+  }, {
+    "name" : "nativefiledialog"
   } ]
 }

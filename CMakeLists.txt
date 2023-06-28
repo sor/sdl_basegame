@@ -98,6 +98,7 @@ find_package( SDL2_mixer CONFIG REQUIRED )
 find_package( SDL2_image CONFIG REQUIRED )
 find_package( SDL2_net   CONFIG REQUIRED )
 find_package( fmt        CONFIG REQUIRED )
+find_package( unofficial-nativefiledialog CONFIG REQUIRED )
 
 
 # Why does MSVC exist, but not CLANG or GCC?
@@ -185,5 +186,6 @@ target_link_libraries( sdl_basegame
         $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,   SDL2_image::SDL2_image, SDL2_image::SDL2_image-static>
         $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,       SDL2_net::SDL2_net,     SDL2_net::SDL2_net-static>
         $<IF:${FMT_HEADER_ONLY},                        fmt::fmt-header-only,   fmt::fmt>
+        $<TARGET_NAME_IF_EXISTS:unofficial::nativefiledialog::nfd>
         $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_CXX>
         )

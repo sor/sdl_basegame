@@ -121,6 +121,17 @@ int Game::Run()
 	Duration deltaTNeeded = Duration::zero();   // How much time was really necessary
 	TimePoint start;
 
+
+	if( 0 ) {
+		nfdchar_t * outPath = NULL;
+		nfdresult_t result = NFD_OpenDialog( NULL, NULL, &outPath );
+
+		if( result == NFD_OKAY ) {
+			print( "Success! Path is {0}\n", outPath );
+			free( outPath );
+		}
+	}
+
 	while( IsRunning() )
 	{
 		start = Clock::now();

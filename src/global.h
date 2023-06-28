@@ -20,6 +20,8 @@
 
 #include <fmt/core.h>   // https://fmt.dev/latest/index.html
 
+#include <nfd.h>        // https://github.com/mlabbe/nativefiledialog/blob/master/README.md
+
 #include <SDL_stdinc.h>
 #include <SDL_error.h>
 #include <SDL_events.h>
