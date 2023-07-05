@@ -26,5 +26,10 @@
     "name" : "fmt"
   }, {
     "name" : "nativefiledialog"
+  }
+  , {
+    "name": "imgui",
+    "features": [ "sdl2-binding", "sdl2-renderer-binding" ],
+    "$features": [ "opengl3-binding", "sdl2-binding", "sdl2-renderer-binding" ]
   } ]
 }

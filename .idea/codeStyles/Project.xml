@@ -1,5 +1,6 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
+    <option name="RIGHT_MARGIN" value="160" />
     <Objective-C>
       <option name="KEEP_NESTED_NAMESPACES_IN_ONE_LINE" value="true" />
       <option name="NAMESPACE_BRACE_PLACEMENT" value="2" />

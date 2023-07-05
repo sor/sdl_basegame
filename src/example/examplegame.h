@@ -4,6 +4,8 @@
 
 #include <gamebase.h>
 #include <recthelper.h>
+#include <autocast_ptr.h>
+#include <tiles.h>
 
 class ExampleGame;
 class IntroState;
@@ -11,6 +13,7 @@ class PlasmaState;
 class SortState;
 class CameraState;
 class ShooterState;
+class MapEditorState;
 
 class ExampleGame final : public Game
 {
@@ -25,10 +28,12 @@ class IntroState : public GameState
 protected:
 	Font    * font              = nullptr;
 	Texture * image             = nullptr;
+	Texture * tiles             = nullptr;
 	Music   * music             = nullptr;
 	Chunk   * sound             = nullptr;
 	Texture * blendedText       = nullptr;
 	Point     blendedTextSize   = { 0, 0 };
+	u8        textmode          = 1;
 
 	static constexpr const Color white { 255, 255, 255, 255 };
 	static constexpr const Color black { 0, 0, 0, 255 };
@@ -164,6 +169,7 @@ protected:
 
 	Chunk   * sound         = nullptr;
 	Texture * projectile[4] = { nullptr };
+	//ReuseFPoints rvProjectiles;
 
 	Vector<FPoint> enemyProjectiles;
 	Vector<FPoint>::iterator enemyProjReuse;
@@ -197,8 +203,59 @@ public:
 
 	[[nodiscard]]
 	bool IsProjectileAlive( const Vector<FPoint>::iterator & it ) const;
-	void SpawnProjectile( const FPoint pos );
+	void SpawnProjectile(   const FPoint pos );
 	void SpawnMyProjectile( const FPoint pos );
-	void RetireProjectile( const Vector<FPoint>::iterator & it );
-	void RetireMyProjectile( const Vector<FPoint>::iterator & it );
+	void RetireProjectile(  const Vector<FPoint>::iterator & it );
+	void RetireMyProjectile(const Vector<FPoint>::iterator & it );
+};
+
+class MapEditorState : public GameState
+{
+protected:
+	TileSet tileSet;
+	TileMap tileMap;
+
+	// all below might be junk
+
+	Texture * bg[4] = { nullptr };
+	Point bgSize[4];
+	const FPoint bgStart[4] = {
+		{ 0,    -330 },
+		{ -350, -330 },
+		{ -450, -900 },
+		{ -800, -1500 },
+	};
+	const FPoint bgFactor[4] = {
+		{ 0.2f, 0.3f },
+		{ 0.4f, 0.45f },
+		{ 0.8f, 0.8f },
+		{ 1.2f, 1.2f },
+	};
+	bool bgIsVisible[4] = {
+		true,
+		true,
+		true,
+		true,
+	};
+	FPoint mouseOffset = { 0, 0 };
+	FPoint mouseOffsetEased = { 0, 0 };
+
+	bool isInverted = false;
+	bool isEased = true;
+	bool isFlux = true;
+	FPoint cam { .x = 0, .y = 0 };
+
+public:
+	// ctor
+	using GameState::GameState;
+
+	void Init() override;
+	void UnInit() override;
+
+	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+
+	FPoint CalcFluxCam(const u32 totalMSec) const;
+	void RenderLayer(const Point winSize, const FPoint camPos, const int index) const;
 };

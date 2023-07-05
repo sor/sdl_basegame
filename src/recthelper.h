@@ -4,8 +4,14 @@
 
 constexpr const SDL_Rect * EntireRect = nullptr;
 
+// Define Y_IS_UP if you want to use Y as up, but beware you need to do more than just this to make it work
+#ifdef Y_IS_UP
+constexpr SDL_Point   operator"" _up    (unsigned long long n) { return { 0,  (int)n }; }
+constexpr SDL_Point   operator"" _down  (unsigned long long n) { return { 0, -(int)n }; }
+#else
 constexpr SDL_Point   operator"" _up    (unsigned long long n) { return { 0, -(int)n }; }
 constexpr SDL_Point   operator"" _down  (unsigned long long n) { return { 0,  (int)n }; }
+#endif
 constexpr SDL_Point   operator"" _left  (unsigned long long n) { return { -(int)n, 0 }; }
 constexpr SDL_Point   operator"" _right (unsigned long long n) { return {  (int)n, 0 }; }
 
@@ -77,3 +83,10 @@ constexpr SDL_FRect    operator/  (const SDL_FRect lhs, const float rhs) { retur
 constexpr SDL_FRect&   operator*= (SDL_FRect& lhs, const float rhs) { lhs = lhs * rhs; return lhs; }
 constexpr SDL_FRect&   operator/= (SDL_FRect& lhs, const float rhs) { lhs = lhs / rhs; return lhs; }
 
+
+constexpr Point  toI( const FPoint n ) { return Point { (int)   n.x, (int)   n.y }; }
+constexpr Rect   toI( const FRect  n ) { return Rect  { (int)   n.x, (int)   n.y, (int)   n.w, (int)   n.h }; }
+constexpr FPoint toF( const Point  n ) { return FPoint{ (float) n.x, (float) n.y }; }
+constexpr FRect  toF( const Rect   n ) { return FRect { (float) n.x, (float) n.y, (float) n.w, (float) n.h }; }
+constexpr Rect  toWH( const Point  n ) { return Rect  { 0, 0, n.x, n.y }; }
+constexpr FRect toWH( const FPoint n ) { return FRect { 0, 0, n.x, n.y }; }

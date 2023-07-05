@@ -1,5 +1,7 @@
 #include "examplegame.h"
 
+#include <tilefont.h>
+
 void IntroState::Init()
 {
 	if( !font )
@@ -14,6 +16,17 @@ void IntroState::Init()
 	{
 		image = IMG_LoadTexture( render, BasePath "asset/graphic/background.png" );
 		if( !image )
+			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
+	}
+
+	if( !tiles )
+	{
+		auto tiles_ = IMG_Load( BasePath "asset/graphic/16x16_hsnr64.png" );
+		SDL_SetColorKey( tiles_, true, SDL_MapRGB( tiles_->format, 178, 185, 212 ) );
+		tiles = SDL_CreateTextureFromSurface( render, tiles_ );
+		SDL_FreeSurface( tiles_ );
+		//tiles = IMG_LoadTexture( render, BasePath "asset/graphic/16x16_hsnr64.png" );
+		if( !tiles )
 			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
 	}
 
@@ -76,7 +89,6 @@ void IntroState::Events( const u32 frame, const u32 totalMSec, const float delta
 						Mix_ResumeMusic();
 					else
 						Mix_PauseMusic();
-
 				}
 				else if( what_key.scancode == SDL_SCANCODE_F2 && event.key.repeat == 0 )
 				{
@@ -84,11 +96,14 @@ void IntroState::Events( const u32 frame, const u32 totalMSec, const float delta
 						Mix_VolumeMusic( 0 );
 					else
 						Mix_VolumeMusic( MIX_MAX_VOLUME );
-
 				}
 				else if( what_key.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
 				{
 					Mix_PlayChannel( -1, sound, 0 );
+				}
+				else if( what_key.scancode == SDL_SCANCODE_F4 && event.key.repeat == 0 )
+				{
+					textmode = (textmode + 1) % 2;
 				}
 				else if( what_key.scancode == SDL_SCANCODE_F9 )
 				{
@@ -104,7 +119,7 @@ void IntroState::Events( const u32 frame, const u32 totalMSec, const float delta
 			}
 
 			case SDL_MOUSEBUTTONDOWN:
-				game.SetNextState( 1 );
+				//game.SetNextState( 1 );
 				break;
 
 			default:
@@ -129,15 +144,19 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 	// Poor persons benchmark
 	//for (uint x = 0; x < 100; ++x)
 	{
+		constexpr const char * text =
+			"                                          --== Introscreen of my Super Mega Gamey Game 3000 ==--\n\n"
+			"Dies ist ein Typoblindtext. An ihm kann man sehen, ob alle Buchstaben da sind und wie sie aussehen. Manchmal benutzt man Worte wie Hamburgefonts, Rafgenduks oder Handgloves, um Schriften zu testen. Manchmal Sätze, die alle Buchstaben des Alphabets enthalten - man nennt diese Sätze »Pangrams«. Sehr bekannt ist dieser: The quick brown fox jumps over the lazy old dog. Oft werden in Typoblindtexte auch fremdsprachige Satzteile eingebaut (AVAIL® and Wefox™ are testing aussi la Kerning), um die Wirkung in anderen Sprachen zu testen. In Lateinisch sieht zum Beispiel fast jede Schrift gut aus. Quod erat demonstrandum. Seit 1975 fehlen in den meisten Testtexten die Zahlen, weswegen nach TypoGb. 204 § ab dem Jahr 2034 Zahlen in 86 der Texte zur Pflicht werden. Nichteinhaltung wird mit bis zu 245 € oder 368 $ bestraft. Genauso wichtig in sind mittlerweile auch Âçcèñtë, die in neueren Schriften aber fast immer enthalten sind. Ein wichtiges aber schwierig zu integrierendes Feld sind OpenType-Funktionalitäten. Je nach Software und Voreinstellungen können eingebaute Kapitälchen, Kerning oder Ligaturen (sehr pfiffig) nicht richtig dargestellt werden."
+			"\n\nRoyality free music by Karl Casey @ White Bat Audio\n  - Press [F1] to (un)pause music.\n  - Press [F2] to (un)mute music.\nSource: https://www.youtube.com/watch?v=aFITtvK64B4"
+			"\n\nPress any key to continue!"
+			"\n\n!\"#$%&'()*+,-./0123456789:;<=>?"
+			"\n@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
+			"\n`abcdefghijklmnopqrstuvwxyz{|}~"
+			"\ninjektion enjoy major Heij project object farbe Farbe tw";
+
 		// Comment out to disable the cache. Uses 5ms without / 20 ms with harfbuzz
 		if( blendedText == nullptr )
 		{
-			constexpr const char * text =
-				"                                          --== Introscreen of my Super Mega Gamey Game 3000 ==--\n\n"
-				"Dies ist ein Typoblindtext. An ihm kann man sehen, ob alle Buchstaben da sind und wie sie aussehen. Manchmal benutzt man Worte wie Hamburgefonts, Rafgenduks oder Handgloves, um Schriften zu testen. Manchmal Sätze, die alle Buchstaben des Alphabets enthalten - man nennt diese Sätze »Pangrams«. Sehr bekannt ist dieser: The quick brown fox jumps over the lazy old dog. Oft werden in Typoblindtexte auch fremdsprachige Satzteile eingebaut (AVAIL® and Wefox™ are testing aussi la Kerning), um die Wirkung in anderen Sprachen zu testen. In Lateinisch sieht zum Beispiel fast jede Schrift gut aus. Quod erat demonstrandum. Seit 1975 fehlen in den meisten Testtexten die Zahlen, weswegen nach TypoGb. 204 § ab dem Jahr 2034 Zahlen in 86 der Texte zur Pflicht werden. Nichteinhaltung wird mit bis zu 245 € oder 368 $ bestraft. Genauso wichtig in sind mittlerweile auch Âçcèñtë, die in neueren Schriften aber fast immer enthalten sind. Ein wichtiges aber schwierig zu integrierendes Feld sind OpenType-Funktionalitäten. Je nach Software und Voreinstellungen können eingebaute Kapitälchen, Kerning oder Ligaturen (sehr pfiffig) nicht richtig dargestellt werden."
-				"\n\nRoyality free music by Karl Casey @ White Bat Audio\n  - Press [F1] to (un)pause music.\n  - Press [F2] to (un)mute music.\nSource: https://www.youtube.com/watch?v=aFITtvK64B4"
-				"\n\nPress any key to continue!";
-
 			if( blendedText != nullptr )
 				SDL_DestroyTexture( blendedText );
 
@@ -151,8 +170,9 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 		}
 
 		// Draw the text on top
+		if( textmode == 0 )
 		{
-			constexpr const Point p { 32, 50 };
+			constexpr const Point p{ 32, 50 };
 			SDL_SetTextureColorMod( blendedText, 0, 0, 0 );
 			for( const Point & pd : shadowOffsets )
 			{
@@ -163,6 +183,13 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 			SDL_SetTextureColorMod( blendedText, 255, 255, 255 );
 			const Rect dst_rect = { p.x, p.y, blendedTextSize.x, blendedTextSize.y };
 			SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
+		}
+		else
+		{
+			TF_Init( render );
+
+			Rect dimension { 32, 100, winSize.x - (2*32), 9999 };
+			TF_Render( render, text, dimension );
 		}
 	}
 }

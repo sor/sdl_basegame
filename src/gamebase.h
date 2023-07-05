@@ -29,7 +29,7 @@ public:
 
 	explicit Game(
 		const char * windowTitle = "SDL Game",
-		const Point  windowSize  = Point { 1024, 720 },
+		const Point  requestedSize  = Point { 1024, 720 },
 		const bool   vSync       = true );
 	Game(              const Game &  ) = delete;
 	Game(                    Game && ) = delete;
@@ -80,10 +80,10 @@ public:
 	[[nodiscard]] virtual bool  IsFPSLimited()  const { return true; }
 	[[nodiscard]] virtual Color GetClearColor() const { return Color { 0, 0, 0, SDL_ALPHA_OPAQUE }; }
 
-	explicit GameState( Game && game, Renderer * render ) = delete; // prevent taking an rvalue
-	explicit GameState( Game &  game, Renderer * render )
-		: game( game ),
-		  render( render )
+	explicit GameState( Game && game_, Renderer * render_ ) = delete; // prevent taking an rvalue
+	explicit GameState( Game &  game_, Renderer * render_ )
+		: game( game_ ),
+		  render( render_ )
 	{}
 	GameState(              const GameState &  ) = delete;
 	GameState(                    GameState && ) = delete;

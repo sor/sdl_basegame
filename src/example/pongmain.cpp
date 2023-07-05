@@ -33,8 +33,8 @@ int mainx( int argc, char * argv [] )
 
 		// -=- Update World -=-
 
-		left.y  += left_move  * 3;
-		right.y += right_move * 3;
+		left.y  += left_move  * 5;
+		right.y += right_move * 5;
 
 		// Gravitation?
 		//v_y += 0.3f;

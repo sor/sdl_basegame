@@ -45,7 +45,11 @@ endif()
 
 find_package( Git )
 
+#file( LOCK "${VCPKG_DIR}.lock" RESULT_VARIABLE VCPKG_LOCK TIMEOUT 0 )
+#if( ${VCPKG_LOCK} )
+#    message( STATUS "${VCPKG_DIR}.lock is currently set, waiting for release" )
 file( LOCK "${VCPKG_DIR}.lock" )
+#endif()
 
 if( GIT_FOUND AND NOT OUTSIDE_VCPKG_USE )
     if( EXISTS "${PROJECT_SOURCE_DIR}/.git" )
@@ -98,6 +102,7 @@ find_package( SDL2_mixer CONFIG REQUIRED )
 find_package( SDL2_image CONFIG REQUIRED )
 find_package( SDL2_net   CONFIG REQUIRED )
 find_package( fmt        CONFIG REQUIRED )
+find_package( imgui      CONFIG REQUIRED )
 find_package( unofficial-nativefiledialog CONFIG REQUIRED )
 
 
@@ -114,25 +119,30 @@ if( USE_OpenMP )
 endif()
 
 if( MSVC )
-    add_compile_options( /W4 /wd4100 /we4456 )
+    add_compile_options( /W4 /wd4100 /we4456 /utf-8 ) #  no char8_t: /Zc:char8_t-  - whole program optimization: /GL
+
+    # Whole program optimization: /GL
+    #add_compile_options( /GL )
+    #add_link_options( /LTCG )
 else()
     # needs to be before all the -Wno-*
-    set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wall -Wextra" )
-    set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wall -Wextra" )
-
-    if( GCC )
-        set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           -Wshadow=local -Werror=shadow=local" )
-        set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wshadow=local -Werror=shadow=local" )
-    elseif( CLANG )
-        # TODO: Clang uses different names
-    endif()
+    set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wall -Wextra -Werror=parentheses -Werror=uninitialized" )
+    set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wall -Wextra -Werror=parentheses -Werror=uninitialized" )
 
     set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wno-unused-parameter" )   # baseclass functions have plenty unused parameters
     set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wno-unused-parameter" )   # baseclass functions have plenty unused parameters
 
-    if( CLANG )
-        set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           -Wno-unknown-attributes" ) # clang does not know [[(un)likely]]
-        set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wno-unknown-attributes" ) # clang does not know [[(un)likely]]
+    if( GCC )
+        set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           -Wshadow -Werror=shadow=local" )
+        set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wshadow -Werror=shadow=local" )
+        set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wno-volatile" ) # senseless C++20 deprecation that has been de-deprecated for C++23, works in GCC 11 but not Clang 15
+    elseif( CLANG )
+        # TODO: Clang uses different names
+        set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           -Wshadow-all -Werror=shadow" )
+        set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wshadow-all -Werror=shadow" )
+
+        set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           -Wno-unknown-attributes" ) # clang 15 does not know [[(un)likely]]
+        set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wno-unknown-attributes" ) # clang 15 does not know [[(un)likely]]
     endif()
 
     # (how) does this work for MSVC?
@@ -144,19 +154,32 @@ else()
         set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wno-unknown-pragmas" )
     endif()
 
-    set( CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG}     -Og" )
-    set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -Og" )
-    set( CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE}   -O2" )     # default is -O3, which might cause concurrency problems
-    set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )     # default is -O3, which might cause concurrency problems
+    #set( CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG}     -Og" )
+    #set( CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -Og" )
+    #set( CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE}   -O2" )     # default is -O3, which might cause more concurrency problems
+    #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2" )     # default is -O3, which might cause more concurrency problems
+
+    # Here be Dragons
+    #set( CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE}   -ffast-math" )
+    #set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math" )
 endif()
 
-add_compile_options( "$<$<CONFIG:DEBUG>:-DDEBUG>" )
+
+#check_ipo_supported(RESULT result OUTPUT output LANGUAGES CXX)
+#if(result)
+#    set_property(TARGET sdl_basegame PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+#else()
+#    message(WARNING "IPO is not supported: ${output}")
+#endif()
+
+add_compile_options( "$<$<CONFIG:DEBUG>:-D_DEBUG -DDEBUG>" )
 
 add_executable( sdl_basegame
         src/global.h
         src/gamebase.h
         src/gamebase.cpp
         src/recthelper.h
+        src/autocast_ptr.cpp
 
         src/example/pongmain.cpp
 
@@ -168,14 +191,36 @@ add_executable( sdl_basegame
         src/example/plasmastate.cpp
         src/example/shooterstate.cpp
         src/example/sortstate.cpp
-)
+        src/tilefont.h src/tilefont.h src/tiles.h src/collider.h src/example/mapeditor.cpp )
+
+if(  )
+
+endif()
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT supported OUTPUT error)
+if( supported )
+    message(STATUS "IPO / LTO enabled")
+    set_property(TARGET sdl_basegame PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(STATUS "IPO / LTO not supported: <${error}>")
+endif()
+
+
+# imgui comment out for vcpkg.json
+# ], "$disabled_dependencies":[{"blah":"delete this whole line to enable dear imgui"}
 
 target_include_directories( sdl_basegame
         PRIVATE
         src
         ${SDL2_INCLUDE_DIR}
         ${FMT_INCLUDE_DIR}
+        ${IMGUI_INCLUDE_DIR}
         )
+
+#message( STATUS " sdl ${SDL2_INCLUDE_DIR} " )
+#message( STATUS " fmt ${FMT_INCLUDE_DIR} " )
+#message( STATUS " imgui ${IMGUI_INCLUDE_DIR} " )
 
 target_link_libraries( sdl_basegame
         PRIVATE
@@ -186,6 +231,7 @@ target_link_libraries( sdl_basegame
         $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,   SDL2_image::SDL2_image, SDL2_image::SDL2_image-static>
         $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,       SDL2_net::SDL2_net,     SDL2_net::SDL2_net-static>
         $<IF:${FMT_HEADER_ONLY},                        fmt::fmt-header-only,   fmt::fmt>
+        $<TARGET_NAME_IF_EXISTS:imgui::imgui>
         $<TARGET_NAME_IF_EXISTS:unofficial::nativefiledialog::nfd>
         $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_CXX>
         )

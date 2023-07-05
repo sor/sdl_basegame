@@ -43,6 +43,7 @@ void PlasmaState::Events( const u32 frame, const u32 totalMSec, const float delt
 		}
 	}
 
+	// Is not supressed during ImGui input
 	const u8 * key_array = SDL_GetKeyboardState( nullptr );
 	if( key_array[SDL_SCANCODE_DOWN] )
 	{

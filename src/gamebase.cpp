@@ -1,6 +1,6 @@
 #include "gamebase.h"
 
-Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
+Game::Game( const char * windowTitle, const Point requestedSize, const bool vSync )
 {
 	if( SDL_Init( SDL_INIT_EVERYTHING ) )
 	{
@@ -34,12 +34,14 @@ Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
 		exit( 5 );
 	}
 
+	ImGuiOnly( SDL_Init_ImGui(); )
+
 	window = SDL_CreateWindow(
 		windowTitle,
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		windowSize.x,
-		windowSize.y,
+		requestedSize.x,
+		requestedSize.y,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 
 	if( window == nullptr )
@@ -61,6 +63,8 @@ Game::Game( const char * windowTitle, const Point windowSize, const bool vSync )
 		print( stderr, "Renderer could not be created: {}\n", SDL_GetError() );
 		exit( 7 );
 	}
+
+	ImGuiOnly( SDL_Create_ImGui( render, window ); )
 
 	allStates.reserve( 10 );
 	std::fill( allStates.begin(), allStates.end(), nullptr );
@@ -88,6 +92,9 @@ Game::~Game()
 
 bool Game::HandleEvent( const Event event )
 {
+	ImGuiIO & io = ImGui::GetIO();
+	ImGui_ImplSDL2_ProcessEvent( &event );
+
 	switch( event.type )
 	{
 		case SDL_QUIT:
@@ -107,8 +114,24 @@ bool Game::HandleEvent( const Event event )
 				SDL_PushEvent( &next_event );
 				return true;
 			}
+			else if( io.WantCaptureKeyboard )
+			{
+				return true;
+			}
 			break;
 		}
+
+		case SDL_KEYUP:
+			if( io.WantCaptureKeyboard )
+				return true;
+
+			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEWHEEL:
+			if( io.WantCaptureMouse )
+				return true;
 	}
 	return false;
 }
@@ -120,7 +143,6 @@ int Game::Run()
 	Duration deltaT = Duration::zero();
 	Duration deltaTNeeded = Duration::zero();   // How much time was really necessary
 	TimePoint start;
-
 
 	if( 0 ) {
 		nfdchar_t * outPath = NULL;
@@ -154,14 +176,16 @@ int Game::Run()
 		currentState->Update( frame, totalMSec, deltaTF );
 
 		const Color clear = currentState->GetClearColor();
-		if( clear.a != SDL_ALPHA_TRANSPARENT)
+		// TODO: SDL_RenderSetScale( renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y );
+		//if( clear.a != SDL_ALPHA_TRANSPARENT)
 		{
 			SDL_SetRenderDrawColor( render, clear.r, clear.g, clear.b, clear.a );
 			SDL_RenderClear( render );
 		}
-		currentState->Render( frame, totalMSec, deltaTFNeeded );
-		SDL_RenderPresent( render );
 
+		currentState->Render( frame, totalMSec, deltaTFNeeded );
+		ImGuiOnly( SDL_ImGui_Frame( render, window ) );
+		SDL_RenderPresent( render );
 
 		deltaTNeeded = Clock::now() - start;
 
