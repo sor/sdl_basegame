@@ -10,7 +10,7 @@ ExampleGame::ExampleGame()
 		new SortState       ( *this, render ),   // 2
 		new CameraState     ( *this, render ),   // 3
 		new ShooterState    ( *this, render ),   // 4
-		//new MapEditorState  ( *this, render ),   // 5
+//		new MapEditorState  ( *this, render ),   // 5
 	};
 
 	// The virtual call is ok here

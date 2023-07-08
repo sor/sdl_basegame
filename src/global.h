@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdarg>
 #include <cstddef>
+#include <cassert>
 
 #include <algorithm>
 #include <array>
@@ -19,14 +20,22 @@
 #include <unordered_set>
 #include <vector>
 
+#if defined( __cpp_lib_format ) && defined( __cpp_lib_print )
+#include <format>
+#include <print>
+#else
 #include <fmt/core.h>   // https://fmt.dev/latest/index.html
+#endif
 
 #include <nfd.h>        // https://github.com/mlabbe/nativefiledialog/blob/master/README.md
 
+// Usually ImGui is only included during development, but defining IMGUI_ALSO_IN_RELEASE can make it available everywhere
+#if defined( _DEBUG ) || (defined( IMGUI_ALSO_IN_RELEASE ) && defined( RELEASE ))
 #include <imgui.h>      // https://github.com/ocornut/imgui/blob/bb224c8aa1de1992c6ea3483df56fb04d6d1b5b6/examples/example_sdl2_sdlrenderer/main.cpp
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 //#include <imgui_impl_opengl3.h>
+#endif
 
 #include <SDL_stdinc.h>
 #include <SDL_error.h>
@@ -79,9 +88,6 @@ using Chunk       = Mix_Chunk;
 //using Sound       = Mix_Chunk;
 using Music       = Mix_Music;
 
-using std::min;
-using std::max;
-
 template<class T, size_t Size>  using Array  = std::array<T, Size>;
 template<class T>               using Vector = std::vector<T>;
 
@@ -103,7 +109,11 @@ using std::min;
 using std::max;
 
 //using std::cout, std::cin, std::cerr, std::endl;
+#if defined( __cpp_lib_format ) && defined( __cpp_lib_print )
+using std::print, std::println, std::format;
+#else
 using fmt::print, fmt::println, fmt::format;
+#endif
 
 // _MSC_VER is also true for Clang on Windows, which is fine, but we might need a branch for CLion vs Visual Studio
 #ifdef _MSC_VER
@@ -119,7 +129,7 @@ using fmt::print, fmt::println, fmt::format;
                                 // OR build/${configuration}-${compiler}/bin
 #endif
 
-#if defined( DEBUG )
+#if defined( _DEBUG )
 #define DebugOnly( ... ) __VA_ARGS__
 #define IfDebug if constexpr( true )
 #else
@@ -141,6 +151,7 @@ inline void print_once(fmt::format_string<T...> fmt, T&&... args)
 
 
 #ifdef IMGUI_VERSION
+#define IMGUI
 #define ImGuiOnly( ... ) __VA_ARGS__
 inline void SDL_Init_ImGui()
 {
@@ -222,9 +233,7 @@ inline void SDL_ImGui_Frame( Renderer * renderer, Window * window )
 
 	// Start the Dear ImGui frame
 	//ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDLRenderer2_NewFrame();
-	ImGui_ImplSDL2_NewFrame();
-	ImGui::NewFrame();
+
 
 	//ImGui::SetNextWindowCollapsed( true, ImGuiCond_Once );
 	ImGui::ShowDemoWindow( &show_demo_window );
@@ -258,9 +267,6 @@ inline void SDL_ImGui_Frame( Renderer * renderer, Window * window )
 		ImGui::End();
 	}
 
-	ImGui::Render();
-	ImGui_ImplSDLRenderer2_RenderDrawData( ImGui::GetDrawData() );
-
 	/*
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
@@ -269,5 +275,5 @@ inline void SDL_ImGui_Frame( Renderer * renderer, Window * window )
 }
 
 #else
-#define ImGuiOnly( ... )
+#define ImGuiOnly( ... ) // nothing
 #endif

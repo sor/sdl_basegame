@@ -35,8 +35,8 @@ protected:
 	Point     blendedTextSize   = { 0, 0 };
 	u8        textmode          = 1;
 
-	static constexpr const Color white { 255, 255, 255, 255 };
-	static constexpr const Color black { 0, 0, 0, 255 };
+	static constexpr const Color white { 255, 255, 255, SDL_ALPHA_OPAQUE };
+	static constexpr const Color black {   0,   0,   0, SDL_ALPHA_OPAQUE };
 
 	static constexpr const Array<Point,8> shadowOffsets = {
 		/*
@@ -69,6 +69,8 @@ public:
 	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+
+	Color GetClearColor() const override { return Color { 255, 255, 255, SDL_ALPHA_OPAQUE }; }
 };
 
 class PlasmaState final : public IntroState

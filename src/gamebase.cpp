@@ -92,8 +92,10 @@ Game::~Game()
 
 bool Game::HandleEvent( const Event event )
 {
-	ImGuiIO & io = ImGui::GetIO();
-	ImGui_ImplSDL2_ProcessEvent( &event );
+	ImGuiOnly(
+		ImGuiIO & io = ImGui::GetIO();
+		ImGui_ImplSDL2_ProcessEvent( &event );
+	)
 
 	switch( event.type )
 	{
@@ -114,24 +116,33 @@ bool Game::HandleEvent( const Event event )
 				SDL_PushEvent( &next_event );
 				return true;
 			}
-			else if( io.WantCaptureKeyboard )
-			{
-				return true;
-			}
+			ImGuiOnly(
+				else if( io.WantCaptureKeyboard )
+				{
+					return true;
+				}
+			)
+
 			break;
 		}
 
 		case SDL_KEYUP:
-			if( io.WantCaptureKeyboard )
-				return true;
+			ImGuiOnly(
+				if( io.WantCaptureKeyboard )
+					return true;
+			)
 
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 		case SDL_MOUSEWHEEL:
-			if( io.WantCaptureMouse )
-				return true;
+			ImGuiOnly(
+				if( io.WantCaptureMouse )
+					return true;
+			)
+
+			break;
 	}
 	return false;
 }
@@ -183,8 +194,18 @@ int Game::Run()
 			SDL_RenderClear( render );
 		}
 
+		ImGuiOnly({
+			ImGui_ImplSDLRenderer2_NewFrame();
+			ImGui_ImplSDL2_NewFrame();
+			ImGui::NewFrame();
+		})
 		currentState->Render( frame, totalMSec, deltaTFNeeded );
 		ImGuiOnly( SDL_ImGui_Frame( render, window ) );
+
+		ImGuiOnly({
+			ImGui::Render();
+			ImGui_ImplSDLRenderer2_RenderDrawData( ImGui::GetDrawData() );
+		})
 		SDL_RenderPresent( render );
 
 		deltaTNeeded = Clock::now() - start;
