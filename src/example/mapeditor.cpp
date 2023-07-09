@@ -20,6 +20,7 @@ void MapEditorState::Init()
 	tileMap.tileDist = toF( tileMap.tileSet->tileSize );
 	tileMap.center   = toF( tileMap.tileSet->tileSize ) * tileMap.sizeScale * tileMap.halfSize;
 	tileMap.stride   = tileSet.tileCount.x; // needed if tiles is one dimensional
+//	tileMap.scaleMode = SDL_ScaleModeBest;
 
 	tileMap.tiles.resize( tileSet.tileCount.x * tileSet.tileCount.y );
 }
@@ -38,6 +39,10 @@ void MapEditorState::Render( const u32 frame, const u32 totalMSec, const float d
 	SDL_SetTextureBlendMode( tileSet.texture, tileMap.blendMode );
 	SDL_SetTextureScaleMode( tileSet.texture, tileMap.scaleMode );
 
+	SDL_SetTextureColorMod( tileSet.texture, 255, 0, 255 );
+	SDL_SetTextureAlphaMod( tileSet.texture, SDL_ALPHA_OPAQUE );
+	const Tile sentinelTile = Tile { 1000, false, false, false, false, 0, 3 };
+
 	// 10 25
 	const FPoint viewOffset = { 6000,   0 };
 	const Point  viewSize   = {  640, 480 };
@@ -46,10 +51,11 @@ void MapEditorState::Render( const u32 frame, const u32 totalMSec, const float d
 	int x = 0, y = 0;
 	int index = x + y * tileMap.stride;
 
-	Tile * curr_tile = &tileMap.tiles[index];
-	Tile * last_tile = curr_tile; // Should suffice as sentinel for now
+	/*const*/ Tile * curr_tile = &tileMap.tiles[index];
+	const     Tile * last_tile = &sentinelTile;
 
-	//DrawTile( renderer, tileSet.texture, *curr_tile, *last_tile, tileMap.center );
+	*curr_tile = Tile { 1010, rand()%2==0, rand()%2==0, false, false, (u8)(16+(rand()%6)), 1 };
+	DrawTile( renderer, tileSet.texture, *curr_tile, *last_tile, tileMap.center );
 
 	Rect  palSrc {   0, 0, 512, 512 };
 	FRect palDst { 640, 0, 512, 512 };

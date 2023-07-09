@@ -272,7 +272,7 @@ void DrawCircle( SDL_Renderer* renderer, SDL_Point center, int radius )
 }
 
 template <int X, int Y>
-Point unpack( int val ) // LtR, TtB
+Point unpack( int val ) // LtR, TtB - Left to Right, Top to Bottom
 {
 	return { val % X, (val / X) % Y };
 }

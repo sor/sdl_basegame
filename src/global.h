@@ -88,8 +88,8 @@ using Chunk       = Mix_Chunk;
 //using Sound       = Mix_Chunk;
 using Music       = Mix_Music;
 
-template<class T, size_t Size>  using Array  = std::array<T, Size>;
-template<class T>               using Vector = std::vector<T>;
+template<class T, std::size_t Size> using Array  = std::array<T, Size>;
+template<class T>                   using Vector = std::vector<T>;
 
 
 template <typename T> class autocast_shared_ptr;
@@ -236,9 +236,9 @@ inline void SDL_ImGui_Frame( Renderer * renderer, Window * window )
 
 
 	//ImGui::SetNextWindowCollapsed( true, ImGuiCond_Once );
-	ImGui::ShowDemoWindow( &show_demo_window );
+	//ImGui::ShowDemoWindow( &show_demo_window );
 
-	{
+	if(0){
 		ImGuiIO& io = ImGui::GetIO();
 
 		static float f = 0.0f;

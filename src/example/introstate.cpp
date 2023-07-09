@@ -170,7 +170,9 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 			static bool auto_update = false;
 			static bool drawColorNumber = false;
 			//ImGuiIO & io = ImGui::GetIO();
-			ImGui::Begin( "Introstate" );
+			ImGui::Begin( "Introstate", nullptr, ImGuiWindowFlags_NoFocusOnAppearing );
+			if(frame==0)
+				ImGui::SetWindowFocus( nullptr );
 
 			if( ImGui::SliderInt( "int", &p.x, 0, 320 ) && auto_update )
 				blendedText = nullptr;

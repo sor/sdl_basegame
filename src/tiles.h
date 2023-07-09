@@ -3,6 +3,8 @@
 #include <global.h>
 #include <recthelper.h>
 
+#include "example/hsnr64.h"
+
 //#define TILE_INDEX_MAX_4096
 
 // The Tileset to use is specified by the TileLayer
@@ -38,23 +40,28 @@ static_assert( sizeof(Tile) == 4 );
 #endif
 
 inline
-void DrawTile( Renderer * renderer, Texture * tex, Tile & curr_tile, Tile & last_tile, const FPoint & center )
+void DrawTile( Renderer * renderer, Texture * tex, const Tile & curr_tile, const Tile & last_tile, const FPoint & center )
 {
 	// An index of 0 means: Do not render anything, which fills in for alpha 0% (which therefore does not exist as value in alpha)
 	// There needs to be a sentinel last_tile for the first call, which has color and alpha set to the default values
 	assert( curr_tile.index() != 0 ); // "Prevent entering this function on index == 0"
 	assert( last_tile.index() != 0 ); // "The last_tile can also not be index == 0, pass in the one before that"
 
-	if( curr_tile.color != last_tile.color )
+	// color == 0 also means do not draw
+	if( curr_tile.color == 0 )
+	{
+		return;
+	}
+	else if( curr_tile.color != last_tile.color )
 	{
 		/*
 		Surface     * surf;
 		PixelFormat * format = surf->format;
 		Palette     * pal    = format->palette;                 assert( curr_tile.index() < pal->ncolors );
 		Color       & col    = pal->colors[curr_tile.index()];
-
-		SDL_SetTextureColorMod( tex, col.r, col.g, col.b );
 		*/
+		const Color & col    = sor::hsnr64::Palette[curr_tile.color];
+		SDL_SetTextureColorMod( tex, col.r, col.g, col.b );
 	}
 
 	if( curr_tile.alpha != last_tile.alpha )
@@ -67,9 +74,11 @@ void DrawTile( Renderer * renderer, Texture * tex, Tile & curr_tile, Tile & last
 		u8 alpha = curr_tile.alpha << 6 | 0b11'11'11;
 		SDL_SetTextureAlphaMod( tex, alpha );
 	}
-
-	const Rect             src   = {};
-	const FRect            dst   = {};
+	const u8 tileSizeX = 16, tileSizeY = 16;
+	const u16 stride   = 64;
+	const u16 idx = curr_tile.index();
+	const Rect             src   = { (idx / stride) * tileSizeX, (idx % stride) * tileSizeY, tileSizeX, tileSizeY };
+	const FRect            dst   = { 0, 0, tileSizeX, tileSizeY };
 	const double           angle = curr_tile.rotate90 * 90 + curr_tile.rotate180 * 180.0;
 	const SDL_RendererFlip flip  = (SDL_RendererFlip) (curr_tile.horizontalFlip * SDL_FLIP_HORIZONTAL + curr_tile.verticalFlip * SDL_FLIP_VERTICAL);
 
@@ -121,3 +130,20 @@ struct MultiTileMap // MultiLayer
 	Vector<TileMap> layers;
 	Vector<bool>    enabledLayers;
 };
+
+/*
+// TODO: Create a 2D vector, that supports growing in 2 dimensions.
+// Consists of single-alloc-sectors which are a quadratic area each, e.g. 32x32x4bytes = 4096
+template <typename T, size_t S>
+class Vector2D
+{
+//	static_assert( isPowerOfTwo( S ) );
+	static_assert( S * S * sizeof( T ) <= 4096 );
+	Vector<Array<T, S * S>> sectors;
+
+	// method to grow x direction -> just append on the end
+	// method to grow y direction -> insert at 1..n * stride
+};
+
+inline Vector2D<Tile,32> v2d;
+*/

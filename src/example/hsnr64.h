@@ -1,3 +1,5 @@
+#pragma once
+
 #include <global.h>
 
 /*
@@ -6,7 +8,7 @@
  *                                        ~ Editor ~
  */
 namespace sor::hsnr64 {
-	Array<SDL_Color, 64> Palette = {
+	constexpr const static inline Array<SDL_Color, 64> Palette = {
 		SDL_Color{  255,  0,    255, SDL_ALPHA_OPAQUE },     // this is the don't-draw-pink(/cyan?)
 		SDL_Color{  1,    7,    10,  SDL_ALPHA_OPAQUE },
 		SDL_Color{  19,   16,   20,  SDL_ALPHA_OPAQUE },
