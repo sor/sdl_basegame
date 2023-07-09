@@ -38,7 +38,7 @@ static_assert( sizeof(Tile) == 4 );
 #endif
 
 inline
-void DrawTile( Renderer * rend, Texture * tex, Tile & curr_tile, Tile & last_tile, const FPoint & center )
+void DrawTile( Renderer * renderer, Texture * tex, Tile & curr_tile, Tile & last_tile, const FPoint & center )
 {
 	// An index of 0 means: Do not render anything, which fills in for alpha 0% (which therefore does not exist as value in alpha)
 	// There needs to be a sentinel last_tile for the first call, which has color and alpha set to the default values
@@ -73,7 +73,7 @@ void DrawTile( Renderer * rend, Texture * tex, Tile & curr_tile, Tile & last_til
 	const double           angle = curr_tile.rotate90 * 90 + curr_tile.rotate180 * 180.0;
 	const SDL_RendererFlip flip  = (SDL_RendererFlip) (curr_tile.horizontalFlip * SDL_FLIP_HORIZONTAL + curr_tile.verticalFlip * SDL_FLIP_VERTICAL);
 
-	SDL_RenderCopyExF( rend, tex, &src, &dst, angle, &center, flip );
+	SDL_RenderCopyExF( renderer, tex, &src, &dst, angle, &center, flip );
 }
 
 struct TileInfo

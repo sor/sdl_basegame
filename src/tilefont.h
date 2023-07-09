@@ -5,11 +5,12 @@
 #include <recthelper.h>
 
 /*** TODO:
- * Handle U+0080 - U+00FF properly: This is 0xC2XX and 0xC3XX, especially handle NBSP (0xC2A0) and SHY (0xC2AD) when adding proper linebreaking.
- *      https://www.utf8-chartable.de/
+ * Handle U+25XX & U+1FBXX
  * Shift all the characters in the sheet back to the middle, to enable usage of simple monospaced text and add offsets here to still enable proper kerning.
  * Move the layouting towards using CharChain, which would also work outside of SDL etc.
- * Support Tab, Shy, NBSP and alike
+ * Support specials like Tab, Shy, NBSP, etc.
+ * Fill all the values of CharMetric table properly
+ * https://www.utf8-chartable.de/
  ***/
 
 static constexpr const Array<Point,8> shadowOffsets = {
@@ -36,6 +37,7 @@ static constexpr const Array<Point,8> shadowOffsets = {
 struct CharMetric
 {
 	u8 width    = 16;
+	i8 xoff     = 0;
 	i8 yoff     = 0;
 	i8 left [4] = { 0, 0, 0, 0 };
 	i8 right[4] = { 0, 0, 0, 0 };
@@ -55,6 +57,10 @@ const Array<CharMetric,256> char_metrics = {
 	CharMetric{ 99 },   // Alert
 	CharMetric{ 99 },   // Backspace
 	CharMetric{},       // Tab
+	CharMetric{},       // Newline
+	CharMetric{},       // Vert Tab
+	CharMetric{},       // Formfeed / Pagebreak
+	CharMetric{},       // Carriage Return (useful to print on one line over and over)
 	CharMetric{},
 	CharMetric{},
 	CharMetric{},
@@ -68,114 +74,110 @@ const Array<CharMetric,256> char_metrics = {
 	CharMetric{},
 	CharMetric{},
 	CharMetric{},
-	CharMetric{},
-	CharMetric{},
-	CharMetric{},
-	CharMetric{},
-	CharMetric{},
+	CharMetric{},       // Escape
 	CharMetric{},
 	CharMetric{},
 	CharMetric{},
 	CharMetric{},
 
-	CharMetric{  6, 0, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 10, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // #
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // $
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 14, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // '
-	CharMetric{  7, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  7, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 14, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  5, 1, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // ,
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // .
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // /
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // 0
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 12, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // 9
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  5, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 10, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 10, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  6,  0, 0, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },    // Space
+	CharMetric{  3, -6, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 10, -3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // #
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // $
+	CharMetric{ 13, -1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  3, -6, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // '
+	CharMetric{  7, -4, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  7, -4, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  5, -4, 2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // ,
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  3, -6, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // .
+	CharMetric{ 13, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // /
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },    // 0
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 12, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },    // 9
+	CharMetric{  3, -6, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  5, -4, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 10, -3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 10, -3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
 
-	CharMetric{ 14, 0, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },    // @
-	CharMetric{ 11, 0, { 3, 0, 0, 6 }, { 3, 0, 0, 6 }, 0b0000'0110, 0b0110'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 6 }, { 2, 0, 2, 6 }, 0b0000'1010, 0b0000'0000, 15 },
-	CharMetric{ 11, 0, { 1, 0, 1, 6 }, { 1, 0, 1, 6 } },    // C
-	CharMetric{ 11, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 }, 0b0000'1010, 0b0000'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 6 }, { 0, 4, 0, 6 }, 0b0000'1010, 0b1010'1010, 12 },
-	CharMetric{ 11, 0, { 0, 0, 0, 6 }, { 0, 4, 6, 6 }, 0b0000'1010, 0b1000'1000, 10 },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // G
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  7, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0b0000'1010, 0b1010'0000, 15 },    // I
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // L
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // M
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // N
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 4, 4, 5 }, { 0, 4, 4, 5 }, 0b1000'1000, 0b1000'1000, 10 },    // T
-	CharMetric{ 11, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
-	CharMetric{ 13, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1010, 0b1010'0000, 15 },    // W
-	CharMetric{ 11, 0, { 0, 2, 0, 5 }, { 0, 2, 0, 5 }, 0b0000'1010, 0b1010'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0b1000'1010, 0b1010'0010, 10 },
-	CharMetric{  5, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // [
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  5, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -1, 0, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },    // @
+	CharMetric{ 11, -2, 0, { 3, 0, 0, 6 }, { 3, 0, 0, 6 }, 0b0000'0110, 0b0110'0000, 15 },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 2, 0, 2, 6 }, 0b0000'1010, 0b0000'0000, 15 },
+	CharMetric{ 11, -2, 0, { 1, 0, 1, 6 }, { 1, 0, 1, 6 } },    // C
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 }, 0b0000'1010, 0b0000'0000, 15 },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 4, 0, 6 }, 0b0000'1010, 0b1010'1010, 12 },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 4, 6, 6 }, 0b0000'1010, 0b1000'1000, 10 },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },    // G
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{  7, -4, 0, { 0, 0, 0, 4 }, { 0, 0, 0, 4 }, 0b0000'1010, 0b1010'0000, 15 },    // I
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 8, 8, 0, 6 } },    // L
+	CharMetric{ 13, -1, 0, { 0, 0, 0, 7 }, { 0, 0, 0, 7 } },    // M
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },    // N
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 4, 4, 6 }, { 0, 4, 4, 6 }, 0b1000'1000, 0b1000'1000, 10 },    // T
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 }, 0b0000'1000, 0b1000'0000, 15 },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 }, 0b0000'1000, 0b1000'0000, 15 },
+	CharMetric{ 13, -1, 0, { 0, 0, 0, 7 }, { 0, 0, 0, 7 }, 0b0000'1010, 0b1010'0000, 15 },    // W
+	CharMetric{ 11, -2, 0, { 0, 2, 0, 6 }, { 0, 2, 0, 6 }, 0b0000'1010, 0b1010'0000, 15 },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 }, 0b0000'1000, 0b1000'0000, 15 },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0b1000'1010, 0b1010'0010, 10 },
+	CharMetric{  5, -6, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // [
+	CharMetric{ 13, -1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  5, -6, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
 
-	CharMetric{  5, 0, { 0, 0, 0, 0 }, { 1, 0, 0, 1 } },    // `
-	CharMetric{ 11, 0, { 5, 1, 0, 6 }, { 6, 0, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // a
-	CharMetric{ 11, 0, { 0, 0, 0, 6 }, { 8, 0, 0, 6 } },
-	CharMetric{  9, 0, { 4, 0, 0, 5 }, { 4, 0, 0, 5 }, 0b0000'0000, 0b0110'0110, 5 },  // c
-	CharMetric{ 11, 0, { 8, 0, 0, 6 }, { 0, 0, 0, 6 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
-	CharMetric{  9, 0, { 2, 0, 2, 5 }, { 0, 0, 4, 5 }, 0b0100'0100, 0b1100'1100, 3 },  // f
-	CharMetric{ 11, 2, { 6, 0, 0, 0 }, { 6, 0, 0, 1 } },    // g
-	CharMetric{ 11, 0, { 0, 0, 0, 6 }, { 8, 0, 0, 6 }, 0b0000'1110, 0b0010'0000, 6 },  // h
-	CharMetric{  7, 0, { 2, 0, 0, 4 }, { 2, 2, 0, 4 }, 0b0000'0110, 0b0010'0000, 3 },  // i
-	CharMetric{  9, 2, { 6, 6, 5, 0 }, { 0, 0, 0, 0 } },    // j
-	CharMetric{ 10, 0, { 0, 0, 0, 5 }, { 7, 0, 0, 5 } },
-	CharMetric{  7, 0, { 0, 0, 0, 4 }, { 0, 0, 0, 4 } },    // l
-	CharMetric{ 13, 0, { 7, 0, 0, 7 }, { 7, 0, 0, 7 } },    // m
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },    // n
-	CharMetric{ 11, 0, { 6, 0, 1, 6 }, { 6, 0, 1, 6 } },
-	CharMetric{ 11, 2, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // p
-	CharMetric{ 11, 2, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // q
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0010'0010, 0b0100'0100, 5 },
-	CharMetric{ 10, 0, { 4, 0, 4, 5 }, { 4, 1, 0, 5 }, 0b0100'0100, 0b0110'0110, 4 },
-	CharMetric{ 11, 0, { 6, 0, 1, 6 }, { 6, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 6, 0, 2, 6 }, { 6, 0, 2, 6 } },
-	CharMetric{ 13, 0, { 7, 0, 2, 7 }, { 7, 0, 2, 7 } },    // w
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
-	CharMetric{ 11, 2, { 6, 0, 1, 0 }, { 6, 0, 0, 1 } },    // y
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0100'0100, 0b0010'0010, 4 },
-	CharMetric{  9, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // {
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  9, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 14, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 99, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // DEL - 99 width to catch any usage
+	CharMetric{  5, -4, 0, { 0, 0, 0, 0 }, { 1, 0, 0, 1 } },    // `
+	CharMetric{ 11, -2, 0, { 5, 1, 0, 6 }, { 6, 0, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // a
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 8, 0, 0, 6 } },
+	CharMetric{  9, -3, 0, { 4, 0, 0, 5 }, { 4, 0, 0, 5 }, 0b0000'0000, 0b0110'0110, 5 },  // c
+	CharMetric{ 11, -2, 0, { 8, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
+	CharMetric{  9, -3, 0, { 2, 0, 2, 5 }, { 0, 0, 4, 5 }, 0b0100'0100, 0b1100'1100, 3 },  // f
+	CharMetric{ 11, -2, 2, { 6, 0, 0, 0 }, { 6, 0, 0, 1 } },    // g
+	CharMetric{ 11, -2, 0, { 0, 0, 0, 6 }, { 8, 0, 0, 6 }, 0b0000'1110, 0b0010'0000, 6 },  // h
+	CharMetric{  7, -4, 0, { 2, 0, 0, 4 }, { 2, 2, 0, 4 }, 0b0000'0110, 0b0010'0000, 3 },  // i
+	CharMetric{  9, -2, 2, { 6, 6, 5, 0 }, { 0, 0, 0, 0 } },    // j
+	CharMetric{ 10, -3, 0, { 0, 0, 0, 5 }, { 7, 0, 0, 5 } },
+	CharMetric{  7, -4, 0, { 0, 0, 0, 4 }, { 2, 2, 0, 4 } },    // l
+	CharMetric{ 13, -1, 0, { 7, 0, 0, 7 }, { 7, 0, 0, 7 } },    // m
+	CharMetric{ 11, -2, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },    // n
+	CharMetric{ 11, -2, 0, { 6, 0, 1, 6 }, { 6, 0, 1, 6 } },
+	CharMetric{ 11, -2, 2, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // p
+	CharMetric{ 11, -2, 2, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // q
+	CharMetric{ 11, -2, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
+	CharMetric{ 11, -2, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0010'0010, 0b0100'0100, 5 },
+	CharMetric{ 10, -3, 0, { 4, 0, 4, 5 }, { 4, 1, 0, 5 }, 0b0100'0100, 0b0110'0110, 4 },
+	CharMetric{ 11, -2, 0, { 6, 0, 1, 6 }, { 6, 0, 0, 0 } },
+	CharMetric{ 11, -2, 0, { 6, 0, 2, 6 }, { 6, 0, 2, 6 } },
+	CharMetric{ 13, -1, 0, { 7, 0, 2, 7 }, { 7, 0, 2, 7 } },    // w
+	CharMetric{ 11, -2, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
+	CharMetric{ 11, -2, 2, { 6, 0, 1, 0 }, { 6, 0, 0, 1 } },    // y
+	CharMetric{ 11, -2, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0100'0100, 0b0010'0010, 4 },
+	CharMetric{  9, -3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // {
+	CharMetric{  3, -6, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  9, -5, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 99,  0, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // DEL - 99 width to catch any usage
 
 	CharMetric{},
 	CharMetric{},
@@ -212,124 +214,120 @@ const Array<CharMetric,256> char_metrics = {
 
 	// TODO: fix all widths, kerning, etc below
 
-	// "\u00A0¡¢£¤¥¦§¨©ª«¬\u00AD®¯°±²³´µ¶·¸¹º»¼½¾¿"
-	CharMetric{  6, 0, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },    // NBSP
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 10, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // #
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // $
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 14, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // '
-	CharMetric{  7, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  7, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 14, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  5, 1, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // ,
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // .
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // /
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // 0
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 12, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // 9
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  5, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 10, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 10, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	// \u00A0¡¢£¤¥¦§¨©ª«¬\u00AD®¯°±²³´µ¶·¸¹º»¼½¾¿
+	CharMetric{  6, -2,  0, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },    // NBSP
+	CharMetric{  3, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 10, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 13, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // #
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // $
+	CharMetric{ 13, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  3, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // '
+	CharMetric{  7, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  7, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  5, -2,  1, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // ,
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  3, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // .
+	CharMetric{ 13, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // /
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // 0
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 12, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // 9
+	CharMetric{  3, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  5, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 10, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 10, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
 
-	// "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß"
-	CharMetric{ 14, -2, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },    // @
-	CharMetric{ 11, -2, { 3, 0, 0, 6 }, { 3, 0, 0, 6 }, 0b0000'0110, 0b0110'0000, 15 },
-	CharMetric{ 11, -2, { 0, 0, 0, 6 }, { 2, 0, 2, 6 }, 0b0000'1010, 0b0000'0000, 15 },
-	CharMetric{ 11, -2, { 1, 0, 1, 6 }, { 1, 0, 1, 6 } },    // C
-	CharMetric{ 11,  0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 }, 0b0000'1010, 0b0000'0000, 15 },
-	CharMetric{ 11, -2, { 0, 0, 0, 6 }, { 0, 4, 0, 6 }, 0b0000'1010, 0b1010'1010, 12 },
-	CharMetric{ 13,  0, { 0, 0, 0, 6 }, { 0, 4, 6, 6 }, 0b0000'1010, 0b1000'1000, 10 },
-	CharMetric{ 11, +2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // G
-	CharMetric{ 11, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0b0000'1010, 0b1010'0000, 15 },    // I
-	CharMetric{ 11, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  9, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },   // I
-	CharMetric{  9, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },   // I
-	CharMetric{  9, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },   // I
-	CharMetric{  9, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // I
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 4, 4, 5 }, { 0, 4, 4, 5 }, 0b1000'1000, 0b1000'1000, 10 },    // T
-	CharMetric{ 11, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
-	CharMetric{ 13, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1010, 0b1010'0000, 15 },    // W
-	CharMetric{ 11, 0, { 0, 2, 0, 5 }, { 0, 2, 0, 5 }, 0b0000'1010, 0b1010'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0b1000'1010, 0b1010'0010, 10 },
-	CharMetric{  5, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // [
-	CharMetric{ 13, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  5, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	// ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
+	CharMetric{ 14, -2, -2, { 1, 0, 0, 1 }, { 1, 0, 0, 1 } },    // @
+	CharMetric{ 11, -2, -2, { 3, 0, 0, 6 }, { 3, 0, 0, 6 }, 0b0000'0110, 0b0110'0000, 15 },
+	CharMetric{ 11, -2, -2, { 0, 0, 0, 6 }, { 2, 0, 2, 6 }, 0b0000'1010, 0b0000'0000, 15 },
+	CharMetric{ 11, -2, -2, { 1, 0, 1, 6 }, { 1, 0, 1, 6 } },    // C
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 }, 0b0000'1010, 0b0000'0000, 15 },
+	CharMetric{ 11, -2, -2, { 0, 0, 0, 6 }, { 0, 4, 0, 6 }, 0b0000'1010, 0b1010'1010, 12 },
+	CharMetric{ 13, -2,  0, { 0, 0, 0, 6 }, { 0, 4, 6, 6 }, 0b0000'1010, 0b1000'1000, 10 },
+	CharMetric{ 11, -2, +2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // G
+	CharMetric{ 11, -2, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0b0000'1010, 0b1010'0000, 15 },    // I
+	CharMetric{ 11, -2, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  9, -2, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },   // I
+	CharMetric{  9, -2, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },   // I
+	CharMetric{  9, -2, -2, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },   // I
+	CharMetric{  9, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // I
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 4, 4, 5 }, { 0, 4, 4, 5 }, 0b1000'1000, 0b1000'1000, 10 },    // T
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
+	CharMetric{ 13, -2,  0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1010, 0b1010'0000, 15 },    // W
+	CharMetric{ 11, -2,  0, { 0, 2, 0, 5 }, { 0, 2, 0, 5 }, 0b0000'1010, 0b1010'0000, 15 },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 5 }, { 0, 0, 0, 5 }, 0b0000'1000, 0b1000'0000, 15 },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0b1000'1010, 0b1010'0010, 10 },
+	CharMetric{  5, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // [
+	CharMetric{ 13, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  5, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
 
-	// "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
-	CharMetric{ 11, -2, { 0, 0, 0, 0 }, { 1, 0, 0, 1 } },    // `
-	CharMetric{ 11, -2, { 5, 1, 0, 6 }, { 6, 0, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // a
-	CharMetric{ 11, -2, { 0, 0, 0, 6 }, { 8, 0, 0, 6 } },
-	CharMetric{ 11,  0, { 4, 0, 0, 5 }, { 4, 0, 0, 5 }, 0b0000'0000, 0b0110'0110, 5 },  // c
-	CharMetric{ 11,  0, { 8, 0, 0, 6 }, { 0, 0, 0, 6 } },
-	CharMetric{ 11,  0, { 0, 0, 0, 6 }, { 0, 0, 0, 6 } },
-	CharMetric{ 13,  0, { 2, 0, 2, 5 }, { 0, 0, 4, 5 }, 0b0100'0100, 0b1100'1100, 3 },  // æ
-	CharMetric{ 11,  2, { 6, 0, 0, 0 }, { 6, 0, 0, 1 } },    // g
-	CharMetric{ 11, -2, { 0, 0, 0, 6 }, { 8, 0, 0, 6 }, 0b0000'1110, 0b0010'0000, 6 },  // h
-	CharMetric{ 11, -2, { 2, 0, 0, 4 }, { 2, 2, 0, 4 }, 0b0000'0110, 0b0010'0000, 3 },  // i
-	CharMetric{ 11, -2, { 6, 6, 5, 0 }, { 0, 0, 0, 0 } },    // j
-	CharMetric{ 10,  0, { 0, 0, 0, 5 }, { 7, 0, 0, 5 } },
-	CharMetric{ 11,  0, { 0, 0, 0, 4 }, { 0, 0, 0, 4 } },    // i`
-	CharMetric{ 11,  0, { 7, 0, 0, 7 }, { 7, 0, 0, 7 } },    // i'
-	CharMetric{ 11,  0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },    // i^
-	CharMetric{ 11,  0, { 6, 0, 1, 6 }, { 6, 0, 1, 6 } },    // i¨
-	CharMetric{ 11,  0, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // d^
-	CharMetric{ 11,  0, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // n~
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0010'0010, 0b0100'0100, 5 },
-	CharMetric{ 10, 0, { 4, 0, 4, 5 }, { 4, 1, 0, 5 }, 0b0100'0100, 0b0110'0110, 4 },
-	CharMetric{ 11, 0, { 6, 0, 1, 6 }, { 6, 0, 0, 0 } },
-	CharMetric{ 11, 0, { 6, 0, 2, 6 }, { 6, 0, 2, 6 } },
-	CharMetric{ 13, 0, { 7, 0, 2, 7 }, { 7, 0, 2, 7 } },    // w
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
-	CharMetric{ 11, 2, { 6, 0, 1, 0 }, { 6, 0, 0, 1 } },    // y
-	CharMetric{ 11, 0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0100'0100, 0b0010'0010, 4 },
-	CharMetric{  9, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // {
-	CharMetric{  3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{  9, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 14, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
-	CharMetric{ 16, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	// àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ
+	CharMetric{ 11, -2, -1, { 2, 1, 0, 6 }, { 4, 1, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // à
+	CharMetric{ 11, -2, -1, { 4, 1, 0, 6 }, { 2, 1, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // a
+	CharMetric{ 11, -2, -1, { 2, 1, 0, 6 }, { 2, 1, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // a
+	CharMetric{ 11, -2,  0, { 2, 1, 0, 6 }, { 4, 1, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // a
+	CharMetric{ 11, -2,  0, { 2, 1, 0, 6 }, { 4, 1, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // ä
+	CharMetric{ 11, -2, -1, { 2, 1, 0, 6 }, { 2, 1, 0, 6 }, 0b0100'0100, 0b0010'0000, 6 },  // å
+	CharMetric{ 15,  0,  0, { 8, 0, 2, 8 }, { 8, 0, 4, 8 }, 0b0100'0100, 0b0010'0010, 8 },  // æ
+	CharMetric{ 11, -2,  2, { 6, 0, 0, 0 }, { 6, 0, 0, 1 } },    // g
+	CharMetric{ 11, -2, -2, { 0, 0, 0, 6 }, { 8, 0, 0, 6 }, 0b0000'1110, 0b0010'0000, 6 },  // h
+	CharMetric{ 11, -2, -2, { 2, 0, 0, 4 }, { 2, 2, 0, 4 }, 0b0000'0110, 0b0010'0000, 3 },  // i
+	CharMetric{ 11, -2, -2, { 6, 6, 5, 0 }, { 0, 0, 0, 0 } },    // j
+	CharMetric{ 10, -2,  0, { 0, 0, 0, 5 }, { 7, 0, 0, 5 } },
+	CharMetric{ 11, -2,  0, { 0, 0, 0, 4 }, { 0, 0, 0, 4 } },    // i`
+	CharMetric{ 11, -2,  0, { 7, 0, 0, 7 }, { 7, 0, 0, 7 } },    // i'
+	CharMetric{ 11, -2,  0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },    // i^
+	CharMetric{ 11, -2,  0, { 6, 0, 1, 6 }, { 6, 0, 1, 6 } },    // i¨
+	CharMetric{ 11, -2,  0, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // d^
+	CharMetric{ 11, -2,  0, { 6, 0, 0, 0 }, { 6, 0, 0, 0 } },    // n~
+	CharMetric{ 11, -2,  0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
+	CharMetric{ 11, -2,  0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0010'0010, 0b0100'0100, 5 },
+	CharMetric{ 10, -2,  0, { 4, 0, 4, 5 }, { 4, 1, 0, 5 }, 0b0100'0100, 0b0110'0110, 4 },
+	CharMetric{ 11, -2,  0, { 6, 0, 1, 6 }, { 6, 0, 0, 0 } },
+	CharMetric{ 11, -2,  0, { 6, 0, 2, 6 }, { 6, 0, 2, 6 } },
+	CharMetric{ 13, -2,  0, { 7, 0, 2, 7 }, { 7, 0, 2, 7 } },    // w
+	CharMetric{ 11, -2,  0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 } },
+	CharMetric{ 11, -2,  2, { 6, 0, 1, 0 }, { 6, 0, 0, 1 } },    // y
+	CharMetric{ 11, -2,  0, { 6, 0, 0, 6 }, { 6, 0, 0, 6 }, 0b0100'0100, 0b0010'0010, 4 },
+	CharMetric{  9, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },    // {
+	CharMetric{  3, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{  9, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 14, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
+	CharMetric{ 16, -2,  0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
 };
 
 #include <unordered_map>
 
-
-u64 combineChar( u8 last, u8 curr ) {
-	return (((u64)last) << 32) | (u64)curr;
-}
-
-u64 combineInt( u32 last, u32 curr ) {
+u64 combineTwoChars( char32_t last, char32_t curr ) {
 	return (((u64)last) << 32) | (u64)curr;
 }
 
 // differentiate between ligatures and just fixing the look, do a second map
 std::unordered_map<u64, const i8> special_pairs =
 	{
-		{ combineChar('T','U'), -2 } // lig
+		{ combineTwoChars(U'T',U'U'), -2 } // lig
+		//{ combineChar('T','U'), -2 } // lig
 		//{"TU", -2},
 		//{"Ty", -3},
 		/*
@@ -382,7 +380,7 @@ inline void TF_Init( Renderer * renderer )
 		SDL_SetColorKey( tileSurf, true, SDL_MapRGB( tileSurf->format, 178, 185, 212 ) );
 		tiles = SDL_CreateTextureFromSurface( renderer, tileSurf );
 		//SDL_FreeSurface(tileSurf);
-		//tiles = IMG_LoadTexture( render, BasePath "asset/graphic/16x16_hsnr64.png" );
+		//tiles = IMG_LoadTexture( renderer, BasePath "asset/graphic/16x16_hsnr64.png" );
 		if( !tiles )
 			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
 	}
@@ -398,18 +396,22 @@ int numBytesInUTF8( const char c )
 }
 
 // TODO: The typesetting algo should just output an array of CharChains, which can be used regardless of backend, with no added linebreaks yet
-struct CharChain {
-	u32 uc; // "unicode" codepoint
+struct CharChain
+{
+	u32 uc; // "unicode" codepoint, not really, but the index into the tileset
 	u8  width;
 	u8  left;
+	i8  xoff;
 	i8  yoff;
 };
 
-Point & TF_RenderSingle(
+void TF_RenderSingle(
 	Renderer * renderer, Texture * texture, const String & text, const Rect & dimension, const u8 ligatureLevel, const u8 spacing, const Point & tilesize,
-	void (* renderOutline)( Renderer *, Texture *, const Rect &, const Rect & ) )
+	void (* renderFunc)( Renderer *, Texture *, const Rect &, const Rect & ) )
 {
-	Rect dst{ dimension.x, dimension.y, tilesize.x, tilesize.y };
+	//DebugOnly(
+	String skipChar; // UTF-8 char build over time, therefore a string
+	Rect dst     = { dimension.x, dimension.y, tilesize.x, tilesize.y };
 	int  skip    = 0;
 	u32  prefix  = 0;
 	u32  last_uc = '\n';
@@ -418,6 +420,13 @@ Point & TF_RenderSingle(
 		// ++ skip a lot of Unicode for now
 		if( skip )
 		{
+			IfDebug
+			{
+				skipChar.push_back( c );
+				if( skip == 1 )
+					print_once( "Skipped the drawing of char: {}\n", skipChar );
+			}
+
 			skip -= 1;
 			continue;
 		}
@@ -443,6 +452,11 @@ Point & TF_RenderSingle(
 			const int howManyBytes = numBytesInUTF8( c );
 			if( howManyBytes > 2 )
 			{
+				IfDebug
+				{
+					skipChar = c;
+				}
+
 				skip = howManyBytes - 1;
 				continue;
 			}
@@ -476,7 +490,7 @@ Point & TF_RenderSingle(
 				continue;
 		}
 
-		auto spec = special_pairs.find( combineInt( last_uc, uc ) );
+		auto spec = special_pairs.find( combineTwoChars( last_uc, uc ) );
 		if( spec != special_pairs.end() )
 		{
 			dst.x += spec->second;
@@ -519,7 +533,7 @@ Point & TF_RenderSingle(
 		}
 
 		// y offset for: g, p, q, y, etc.
-		const Point dst_off = (31 < uc && uc < 256) ? Point{ 0, met_curr.yoff } : Point{ 0, 0 };
+		const Point dst_off = (31 < uc && uc < 256) ? Point{ met_curr.xoff, met_curr.yoff } : Point{ 0, 0 };
 
 		constexpr int stride = 32;
 		const Point index{ (int) (uc % stride), (int) (uc / stride) };
@@ -527,7 +541,7 @@ Point & TF_RenderSingle(
 		const Rect src = index * 16 + toWH( tilesize );
 		const Rect dst_final = dst + dst_off; // Angry text: + Point{-2+rand()%5, -1+rand()%3};
 
-		renderOutline( renderer, texture, src, dst_final );
+		renderFunc( renderer, texture, src, dst_final );
 
 		const u8 width = met_curr.width;
 		IfDebug if( width > 16 )
@@ -540,7 +554,21 @@ Point & TF_RenderSingle(
 	}
 }
 
-inline void TF_Render( Renderer * renderer, const String & text, const Rect & dimension, Color color )
+inline void TF_RenderOutline( Renderer * renderer, Texture * texture, const Rect & src, const Rect & dst )
+{
+	for( const Point & pd : shadowOffsets )
+	{
+		const Rect dst_off = dst + pd;
+		SDL_RenderCopy( renderer, texture, &src, &dst_off );
+	}
+}
+
+inline void TF_RenderCenter( Renderer * renderer, Texture * texture, const Rect & src, const Rect & dst )
+{
+	SDL_RenderCopy( renderer, texture, &src, &dst );
+}
+
+inline void TF_Render( Renderer * renderer, const String & text, const Rect & dimension, const Color & color )
 {
 	constexpr u8 ligatureLevel = 25; // 0 off, 9 only ffi, 25 acst
 	constexpr u8 overlap_mul = 4;
@@ -549,27 +577,13 @@ inline void TF_Render( Renderer * renderer, const String & text, const Rect & di
 	constexpr u8 spacing = 2;
 	constexpr Point tilesize = { 16, 16 };
 
-	auto renderOutline = []( Renderer * renderer, Texture * texture, const Rect & src, const Rect & dst_final )
-	{
-		for( const Point & pd : shadowOffsets )
-		{
-			const Rect dst_rect = dst_final + pd;
-			SDL_RenderCopy( renderer, texture, &src, &dst_rect );
-		}
-	};
-
-	auto renderCenter = []( Renderer * renderer, Texture * texture, const Rect & src, const Rect & dst_final )
-	{
-		SDL_RenderCopy( renderer, texture, &src, &dst_final );
-	};
-
 	SDL_SetTextureAlphaMod( tiles, 127 );
 	SDL_SetTextureColorMod( tiles, 0, 0, 0 );
-	TF_RenderSingle( renderer, tiles, text, dimension, ligatureLevel, spacing, tilesize, renderOutline );
+	TF_RenderSingle( renderer, tiles, text, dimension, ligatureLevel, spacing, tilesize, TF_RenderOutline );
 
 	SDL_SetTextureAlphaMod( tiles, SDL_ALPHA_OPAQUE );
 	SDL_SetTextureColorMod( tiles, color.r, color.g, color.b );
-	TF_RenderSingle( renderer, tiles, text, dimension, ligatureLevel, spacing, tilesize, renderCenter );
+	TF_RenderSingle( renderer, tiles, text, dimension, ligatureLevel, spacing, tilesize, TF_RenderCenter );
 
 	if( 0 )
 	{
