@@ -20,7 +20,7 @@ class ExampleGame final : public Game
 public:
 	ExampleGame();
 
-	bool HandleEvent( const Event event ) override;
+	bool HandleEvent( const Event & event ) override;
 };
 
 class IntroState : public GameState
@@ -66,7 +66,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 
@@ -89,7 +89,8 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void HandleEvent( const Event & event ) override;
+	void Input() override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
@@ -112,7 +113,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
@@ -140,13 +141,14 @@ protected:
 		true,
 		true,
 	};
-	FPoint mouseOffset = { 0, 0 };
+	FPoint mouseOffset      = { 0, 0 };
 	FPoint mouseOffsetEased = { 0, 0 };
 
 	bool isInverted = false;
-	bool isEased = true;
-	bool isFlux = true;
-	FPoint cam { .x = 0, .y = 0 };
+	bool isEased    = true;
+	bool isFlux     = true;
+	FPoint dir      = { 0, 0 };
+	FPoint cam      = { 0, 0 };
 
 public:
 	// ctor
@@ -155,7 +157,8 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void HandleEvent( const Event & event ) override;
+	void Input() override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 
@@ -166,20 +169,20 @@ public:
 class ShooterState : public CameraState
 {
 protected:
-	float progress = 0;
-	u32 shootCooldown = 0;
+	float progress      = 0;
+	u32   shootCooldown = 0;
 
 	Chunk   * sound         = nullptr;
 	Texture * projectile[4] = { nullptr };
 	//ReuseFPoints rvProjectiles;
 
-	Vector<FPoint> enemyProjectiles;
+	Vector<FPoint>           enemyProjectiles;
 	Vector<FPoint>::iterator enemyProjReuse;
-	int     numDeadEnemyProj = 0;
+	int                      numDeadEnemyProj = 0;
 
-	Vector<FPoint> myProjectiles;
+	Vector<FPoint>           myProjectiles;
 	Vector<FPoint>::iterator myProjReuse;
-	int     numDeadMyProj = 0;
+	int                      numDeadMyProj = 0;
 
 	Vector<FRect> enemies = {
 		{ 1100, 280, 160, 160 },
@@ -199,7 +202,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 
@@ -254,7 +257,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void Events( const u32 frame, const u32 totalMSec, const float deltaT ) override;
+	void HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 

@@ -11,7 +11,7 @@ void PlasmaState::Init()
 
 	// Set to smoothed rendering for the plasma texture
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
-	plasmaTex = SDL_CreateTexture( render, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
+	plasmaTex = SDL_CreateTexture( renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
 	// Reset to "pixelated" for further textures
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "nearest" );
 }
@@ -26,30 +26,24 @@ void PlasmaState::UnInit()
 	IntroState::UnInit();
 }
 
-void PlasmaState::Events( const u32 frame, const u32 totalMSec, const float deltaT )
+void PlasmaState::HandleEvent( const Event & event )
 {
-	SDL_PumpEvents();
-
-	Event event;
-	while( SDL_PollEvent( &event ) )
+	switch( event.type )
 	{
-		if( game.HandleEvent( event ) )
-			continue;
-
-		switch( event.type )
-		{
-			case SDL_MOUSEWHEEL:
-				brightness += event.wheel.y*3;
-		}
+		case SDL_MOUSEWHEEL:
+			brightness += event.wheel.y*3;
 	}
+}
 
+void PlasmaState::Input()
+{
 	// Is not supressed during ImGui input
 	const u8 * key_array = SDL_GetKeyboardState( nullptr );
 	if( key_array[SDL_SCANCODE_DOWN] )
 	{
 		brightness -= 1;
 	}
-	if( key_array[SDL_SCANCODE_UP] )
+	if( key_array[SDL_SCANCODE_UP] ) // Not an else-if, as both buttons can be held at the same time
 	{
 		brightness += 1;
 	}
@@ -98,7 +92,7 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 	{
 		SDL_UpdateTexture( plasmaTex, EntireRect, plasmaSrf->pixels, plasmaSrf->pitch );
 		const Rect dst_rect { 0, 0, plasmaSrf->w * Scale, plasmaSrf->h * Scale };
-		SDL_RenderCopy( render, plasmaTex, EntireRect, &dst_rect );
+		SDL_RenderCopy( renderer, plasmaTex, EntireRect, &dst_rect );
 	}
 
 	// Prepare the text as Texture
@@ -114,7 +108,7 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 
 		const Point & winSize = game.GetWindowSize();
 		Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, winSize.x - 30 );
-		blendedText = SDL_CreateTextureFromSurface( render, surf );
+		blendedText = SDL_CreateTextureFromSurface( renderer, surf );
 		SDL_FreeSurface( surf );
 
 		u32 fmt;
@@ -133,11 +127,11 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 		for( const Point & pd : shadowOffsets )
 		{
 			const Rect dst_rect = p + (pd * 2) + Rect{ 0, 0, blendedTextSize.x, blendedTextSize.y };
-			SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
+			SDL_RenderCopy( renderer, blendedText, EntireRect, &dst_rect );
 		}
 
 		SDL_SetTextureColorMod( blendedText, 255, 255, 255 );
 		const Rect dst_rect = p + Rect{ 0, 0, blendedTextSize.x, blendedTextSize.y };
-		SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
+		SDL_RenderCopy( renderer, blendedText, EntireRect, &dst_rect );
 	}
 }

@@ -8,10 +8,10 @@ void CameraState::Init()
 	{
 		//SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "best" );
 
-		bg[0] = IMG_LoadTexture( render, BasePath "asset/graphic/bg-layer-4.png" );
-		bg[1] = IMG_LoadTexture( render, BasePath "asset/graphic/bg-layer-3.png" );
-		bg[2] = IMG_LoadTexture( render, BasePath "asset/graphic/bg-layer-2.png" );
-		bg[3] = IMG_LoadTexture( render, BasePath "asset/graphic/bg-layer-1.png" );
+		bg[0] = IMG_LoadTexture( renderer, BasePath "asset/graphic/bg-layer-4.png" );
+		bg[1] = IMG_LoadTexture( renderer, BasePath "asset/graphic/bg-layer-3.png" );
+		bg[2] = IMG_LoadTexture( renderer, BasePath "asset/graphic/bg-layer-2.png" );
+		bg[3] = IMG_LoadTexture( renderer, BasePath "asset/graphic/bg-layer-1.png" );
 
 		SDL_QueryTexture( bg[0], nullptr, nullptr, &bgSize[0].x, &bgSize[0].y );
 		SDL_QueryTexture( bg[1], nullptr, nullptr, &bgSize[1].x, &bgSize[1].y );
@@ -38,63 +38,59 @@ void CameraState::UnInit()
 	// TODO
 }
 
-void CameraState::Events( const u32 frame, const u32 totalMSec, const float deltaT )
+void CameraState::HandleEvent( const Event & event )
 {
-	// Could this be the default?
-	SDL_PumpEvents();
-
-	Event event;
-	while( SDL_PollEvent( &event ) )
+	if( event.type == SDL_KEYDOWN && event.key.repeat == 0 )
 	{
-		if( game.HandleEvent( event ) )
-			continue;
+		if( event.key.keysym.scancode == SDL_SCANCODE_F1 ) bgIsVisible[0] = !bgIsVisible[0];
+		if( event.key.keysym.scancode == SDL_SCANCODE_F2 ) bgIsVisible[1] = !bgIsVisible[1];
+		if( event.key.keysym.scancode == SDL_SCANCODE_F3 ) bgIsVisible[2] = !bgIsVisible[2];
+		if( event.key.keysym.scancode == SDL_SCANCODE_F4 ) bgIsVisible[3] = !bgIsVisible[3];
 
-		if( event.type == SDL_KEYDOWN && event.key.repeat == 0 )
-		{
-			if( event.key.keysym.scancode == SDL_SCANCODE_F1 ) bgIsVisible[0] = !bgIsVisible[0];
-			if( event.key.keysym.scancode == SDL_SCANCODE_F2 ) bgIsVisible[1] = !bgIsVisible[1];
-			if( event.key.keysym.scancode == SDL_SCANCODE_F3 ) bgIsVisible[2] = !bgIsVisible[2];
-			if( event.key.keysym.scancode == SDL_SCANCODE_F4 ) bgIsVisible[3] = !bgIsVisible[3];
+		// Toggle all
+		if( event.key.keysym.scancode == SDL_SCANCODE_F5 )
+			bgIsVisible[0] = bgIsVisible[1] = bgIsVisible[2] = bgIsVisible[3] = !bgIsVisible[0];
 
-			// Toggle all
-			if( event.key.keysym.scancode == SDL_SCANCODE_F5 )
-				bgIsVisible[0] = bgIsVisible[1] = bgIsVisible[2] = bgIsVisible[3] = !bgIsVisible[0];
-
-			if( event.key.keysym.scancode == SDL_SCANCODE_F6 ) isInverted = !isInverted;
-			if( event.key.keysym.scancode == SDL_SCANCODE_F7 ) isEased = !isEased;
-			if( event.key.keysym.scancode == SDL_SCANCODE_F8 ) isFlux = !isFlux;
-		}
-		else if( (event.type == SDL_MOUSEBUTTONDOWN)
-			||   (event.type == SDL_MOUSEMOTION && event.motion.state != 0) )
-		{
-			const Point  halfWinSize  = game.GetWindowSize() / 2;
-			const FPoint halfWinSizeF = { (float)halfWinSize.x, (float)halfWinSize.y };
-			const FPoint mousePos     = { (float)event.motion.x, (float)event.motion.y };
-
-			mouseOffset = isInverted
-				? halfWinSizeF - mousePos
-				: mousePos - halfWinSizeF;
-		}
-		else if( event.type == SDL_MOUSEBUTTONUP )
-		{
-			mouseOffset = { 0, 0 };
-		}
+		if( event.key.keysym.scancode == SDL_SCANCODE_F6 ) isInverted = !isInverted;
+		if( event.key.keysym.scancode == SDL_SCANCODE_F7 ) isEased    = !isEased;
+		if( event.key.keysym.scancode == SDL_SCANCODE_F8 ) isFlux     = !isFlux;
 	}
+	else if( (event.type == SDL_MOUSEBUTTONDOWN)
+		  || (event.type == SDL_MOUSEMOTION && event.motion.state != 0) )
+	{
+		const FPoint halfWinSize = toF( game.GetWindowSize() / 2 );
+		const FPoint mousePos    = { (float) event.motion.x, (float) event.motion.y };
 
-	const u8 * key_array = SDL_GetKeyboardState( nullptr );
-	float factor = key_array[SDL_SCANCODE_RSHIFT]
+		mouseOffset = isInverted
+			? halfWinSize - mousePos
+			: mousePos - halfWinSize;
+	}
+	else if( event.type == SDL_MOUSEBUTTONUP )
+	{
+		mouseOffset = { 0, 0 };
+	}
+}
+
+void CameraState::Input()
+{
+	const u8 *  key_array = SDL_GetKeyboardState( nullptr );
+	const float factor    = key_array[SDL_SCANCODE_RSHIFT]
 		? 600.f
 		: 80.0f;
 
-	if( key_array[SDL_SCANCODE_LEFT]  ) cam.x += deltaT * factor;
-	if( key_array[SDL_SCANCODE_RIGHT] )	cam.x -= deltaT * factor;
+	// Reset direction
+	dir = { 0, 0 };
+	if( key_array[SDL_SCANCODE_LEFT]  ) dir.x += factor;
+	if( key_array[SDL_SCANCODE_RIGHT] )	dir.x -= factor;
 
-	if( key_array[SDL_SCANCODE_UP]    ) cam.y += deltaT * factor;
-	if( key_array[SDL_SCANCODE_DOWN]  ) cam.y -= deltaT * factor;
+	if( key_array[SDL_SCANCODE_UP]    ) dir.y += factor;
+	if( key_array[SDL_SCANCODE_DOWN]  ) dir.y -= factor;
 }
 
 void CameraState::Update( const u32 frame, const u32 totalMSec, const float deltaT )
 {
+	cam += dir * deltaT;
+
 	if( isEased )
 	{
 		SDL_FPoint diff = (mouseOffset - mouseOffsetEased);
@@ -154,11 +150,11 @@ void CameraState::RenderLayer(const Point winSize, const FPoint camPos, const in
 		for( float y = offset.y; y < winSize.y; y += size.y * 2 )
 		{
 			Rect off = { .x = (int)x, .y = (int)y, .w = size.x * 2, .h = size.y * 2 };
-			SDL_RenderCopy( render, bg[index], EntireRect, &off );
+			SDL_RenderCopy( renderer, bg[index], EntireRect, &off );
 
 			// Makes only sense with texture hint == best
 			//FRect offset = { .x = x, .y = y, .w = size.x * 2.0f, .h = size.y * 2.0f };
-			//SDL_RenderCopyF( render, bg[i], EntireRect, &offset );
+			//SDL_RenderCopyF( renderer, bg[i], EntireRect, &offset );
 		}
 	}
 }

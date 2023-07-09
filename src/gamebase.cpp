@@ -50,7 +50,7 @@ Game::Game( const char * windowTitle, const Point requestedSize, const bool vSyn
 		exit( 6 );
 	}
 
-	render = SDL_CreateRenderer(
+	renderer = SDL_CreateRenderer(
 		window,
 		-1,
 		SDL_RENDERER_ACCELERATED
@@ -58,13 +58,13 @@ Game::Game( const char * windowTitle, const Point requestedSize, const bool vSyn
 		   ? SDL_RENDERER_PRESENTVSYNC
 		   : 0) );
 
-	if( render == nullptr )
+	if( renderer == nullptr )
 	{
 		print( stderr, "Renderer could not be created: {}\n", SDL_GetError() );
 		exit( 7 );
 	}
 
-	ImGuiOnly( SDL_Create_ImGui( render, window ); )
+	ImGuiOnly( SDL_Create_ImGui( renderer, window ); )
 
 	allStates.reserve( 10 );
 	std::fill( allStates.begin(), allStates.end(), nullptr );
@@ -75,8 +75,8 @@ Game::~Game()
 	for( GameState * state : allStates )
 		delete state;
 
-	if( render != nullptr )
-		SDL_DestroyRenderer( render );
+	if( renderer != nullptr )
+		SDL_DestroyRenderer( renderer );
 
 	if( window != nullptr )
 		SDL_DestroyWindow( window );
@@ -90,7 +90,56 @@ Game::~Game()
 		SDL_Quit();
 }
 
-bool Game::HandleEvent( const Event event )
+void Game::Input()
+{
+	SDL_PumpEvents();
+
+	Event event;
+	while( SDL_PollEvent( &event ) )
+	{
+		if( HandleEvent( event ) )
+			continue;
+		else
+			currentState->HandleEvent( event );
+	}
+
+	currentState->Input();
+}
+
+void Game::Update( const u64 msSinceStart, const float deltaT )
+{
+	currentState->Update( framesSinceStart, msSinceStart, deltaT );
+}
+
+void Game::Render( const u64 msSinceStart, const float deltaTNeeded )
+{
+	const Color clear = currentState->GetClearColor();
+	// TODO: SDL_RenderSetScale( renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y );
+	//if( clear.a != SDL_ALPHA_TRANSPARENT)
+	{
+		SDL_SetRenderDrawColor( renderer, clear.r, clear.g, clear.b, clear.a );
+		SDL_RenderClear( renderer );
+	}
+
+	ImGuiOnly(
+		ImGui_ImplSDLRenderer2_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+	)
+
+	currentState->Render( framesSinceStart, msSinceStart, deltaTNeeded );
+
+	ImGuiOnly(
+		SDL_ImGui_Frame( renderer, window );
+		ImGui::Render();
+		ImGui_ImplSDLRenderer2_RenderDrawData( ImGui::GetDrawData() );
+	)
+
+	SDL_RenderPresent( renderer );
+}
+
+// Returns if the event has been handled
+bool Game::HandleEvent( const Event & event )
 {
 	ImGuiOnly(
 		ImGuiIO & io = ImGui::GetIO();
@@ -122,7 +171,6 @@ bool Game::HandleEvent( const Event event )
 					return true;
 				}
 			)
-
 			break;
 		}
 
@@ -131,7 +179,6 @@ bool Game::HandleEvent( const Event event )
 				if( io.WantCaptureKeyboard )
 					return true;
 			)
-
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -141,9 +188,9 @@ bool Game::HandleEvent( const Event event )
 				if( io.WantCaptureMouse )
 					return true;
 			)
-
 			break;
 	}
+
 	return false;
 }
 
@@ -151,8 +198,8 @@ int Game::Run()
 {
 	SDL_assert( nextStateIdx >= 0 );
 
-	Duration deltaT = Duration::zero();
-	Duration deltaTNeeded = Duration::zero();   // How much time was really necessary
+	Duration deltaTDur       = Duration::zero();
+	Duration deltaTDurNeeded = Duration::zero();   // How much time was really necessary
 	TimePoint start;
 
 	if( 0 ) {
@@ -169,62 +216,45 @@ int Game::Run()
 	{
 		start = Clock::now();
 
-		const float deltaTF = std::chrono::duration<float>( deltaT ).count();
-		const float deltaTFNeeded = std::chrono::duration<float>( deltaTNeeded ).count();
+		const float deltaT       = std::chrono::duration<float>( deltaTDur       ).count();
+		const float deltaTNeeded = std::chrono::duration<float>( deltaTDurNeeded ).count();
 
-		OutputPerformanceInfo( start, deltaTNeeded );
+		OutputPerformanceInfo( start, deltaTDurNeeded );
 
 		ActivateNextState();
 
 		// The difference to last frame is usually 16-17 at 60Hz, 10 at 100Hz, 8-9 at 120Hz, 6-*7* at 144Hz
-		const u32 totalMSec = SDL_GetTicks();
+		const u64 msSinceStart = SDL_GetTicks64();
 
-		SDL_GetWindowSize(window, &windowSize.x, &windowSize.y);
+		SDL_GetWindowSize( window, &windowSize.x, &windowSize.y );
 
-
-		currentState->Events( frame, totalMSec, deltaTF );
-
-		currentState->Update( frame, totalMSec, deltaTF );
-
-		const Color clear = currentState->GetClearColor();
-		// TODO: SDL_RenderSetScale( renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y );
-		//if( clear.a != SDL_ALPHA_TRANSPARENT)
+		// Main loop trinity
 		{
-			SDL_SetRenderDrawColor( render, clear.r, clear.g, clear.b, clear.a );
-			SDL_RenderClear( render );
+			Input();
+
+			Update( msSinceStart, deltaT );
+
+			Render( msSinceStart, deltaTNeeded );
 		}
 
-		ImGuiOnly({
-			ImGui_ImplSDLRenderer2_NewFrame();
-			ImGui_ImplSDL2_NewFrame();
-			ImGui::NewFrame();
-		})
-		currentState->Render( frame, totalMSec, deltaTFNeeded );
-		ImGuiOnly( SDL_ImGui_Frame( render, window ) );
+		deltaTDurNeeded = Clock::now() - start;
 
-		ImGuiOnly({
-			ImGui::Render();
-			ImGui_ImplSDLRenderer2_RenderDrawData( ImGui::GetDrawData() );
-		})
-		SDL_RenderPresent( render );
-
-		deltaTNeeded = Clock::now() - start;
-
+		// With VSync this should not be needed and only Delay( 0 );
 		if( currentState->IsFPSLimited() )
 		{
 			using namespace std::chrono_literals;
 
-			const Duration dur = std::max( Duration::zero(), 16ms - deltaTNeeded );
+			const Duration dur = std::max( Duration::zero(), 16ms - deltaTDurNeeded );
 			const u32 ms = static_cast<u32>( std::chrono::duration_cast<std::chrono::milliseconds>( dur ).count() );
 			SDL_Delay( ms );
-			deltaT = Clock::now() - start;
+			deltaTDur = Clock::now() - start;
 		}
 		else
 		{
-			deltaT = deltaTNeeded;
+			deltaTDur = deltaTDurNeeded;
 		}
 
-		++frame;
+		++framesSinceStart;
 	}
 	return 0;
 }
@@ -254,13 +284,13 @@ void Game::ActivateNextState()
 
 float Game::AverageMSecPerFrame() const
 {
-	const u32 passedFrames = frame - lastPerfInfoFrame + 1;
+	const u32 passedFrames = framesSinceStart - lastPerfInfoFrame + 1;
 	return std::chrono::duration<float>( accumulatedNeeded / passedFrames ).count() * 1000.0f;
 }
 
 void Game::ResetPerformanceInfo( const TimePoint current )
 {
-	lastPerfInfoFrame = frame;
+	lastPerfInfoFrame = framesSinceStart;
 	lastPerfInfoTime = current;
 	accumulatedNeeded = Duration::zero();
 }

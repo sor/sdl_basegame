@@ -15,7 +15,7 @@ void IntroState::Init()
 
 	if( !image )
 	{
-		image = IMG_LoadTexture( render, BasePath "asset/graphic/background.png" );
+		image = IMG_LoadTexture( renderer, BasePath "asset/graphic/background.png" );
 		if( !image )
 			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
 	}
@@ -24,9 +24,9 @@ void IntroState::Init()
 	{
 		auto tiles_ = IMG_Load( BasePath "asset/graphic/16x16_hsnr64.png" );
 		SDL_SetColorKey( tiles_, true, SDL_MapRGB( tiles_->format, 178, 185, 212 ) );
-		tiles = SDL_CreateTextureFromSurface( render, tiles_ );
+		tiles = SDL_CreateTextureFromSurface( renderer, tiles_ );
 		SDL_FreeSurface( tiles_ );
-		//tiles = IMG_LoadTexture( render, BasePath "asset/graphic/16x16_hsnr64.png" );
+		//tiles = IMG_LoadTexture( renderer, BasePath "asset/graphic/16x16_hsnr64.png" );
 		if( !tiles )
 			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
 	}
@@ -68,64 +68,55 @@ void IntroState::UnInit()
 	*/
 }
 
-void IntroState::Events( const u32 frame, const u32 totalMSec, const float deltaT )
+void IntroState::HandleEvent( const Event & event )
 {
-	SDL_PumpEvents();
-
-	Event event;
-	while( SDL_PollEvent( &event ) )
+	switch( event.type )
 	{
-		if( game.HandleEvent( event ) )
-			continue;
-
-		switch( event.type )
+		case SDL_KEYDOWN:
 		{
-			case SDL_KEYDOWN:
+			const Keysym & what_key = event.key.keysym;
+
+			if( what_key.scancode == SDL_SCANCODE_F1 && event.key.repeat == 0 )
 			{
-				const Keysym & what_key = event.key.keysym;
-
-				if( what_key.scancode == SDL_SCANCODE_F1 && event.key.repeat == 0 )
-				{
-					if( Mix_PausedMusic() )
-						Mix_ResumeMusic();
-					else
-						Mix_PauseMusic();
-				}
-				else if( what_key.scancode == SDL_SCANCODE_F2 && event.key.repeat == 0 )
-				{
-					if( Mix_VolumeMusic( -1 ) == MIX_MAX_VOLUME )
-						Mix_VolumeMusic( 0 );
-					else
-						Mix_VolumeMusic( MIX_MAX_VOLUME );
-				}
-				else if( what_key.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
-				{
-					Mix_PlayChannel( -1, sound, 0 );
-				}
-				else if( what_key.scancode == SDL_SCANCODE_F4 && event.key.repeat == 0 )
-				{
-					textmode = (textmode + 1) % 2;
-				}
-				else if( what_key.scancode == SDL_SCANCODE_F9 )
-				{
-					// crash/shutdown, since State #6 does not exist
-					game.SetNextState( 99 );
-				}
-				else if( what_key.scancode == SDL_SCANCODE_ESCAPE )
-				{
-					game.SetNextState( 0 );
-				}
-
-				break;
+				if( Mix_PausedMusic() )
+					Mix_ResumeMusic();
+				else
+					Mix_PauseMusic();
+			}
+			else if( what_key.scancode == SDL_SCANCODE_F2 && event.key.repeat == 0 )
+			{
+				if( Mix_VolumeMusic( -1 ) == MIX_MAX_VOLUME )
+					Mix_VolumeMusic( 0 );
+				else
+					Mix_VolumeMusic( MIX_MAX_VOLUME );
+			}
+			else if( what_key.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
+			{
+				Mix_PlayChannel( -1, sound, 0 );
+			}
+			else if( what_key.scancode == SDL_SCANCODE_F4 && event.key.repeat == 0 )
+			{
+				textmode = (textmode + 1) % 2;
+			}
+			else if( what_key.scancode == SDL_SCANCODE_F9 )
+			{
+				// crash/shutdown, since State #6 does not exist
+				game.SetNextState( 99 );
+			}
+			else if( what_key.scancode == SDL_SCANCODE_ESCAPE )
+			{
+				game.SetNextState( 0 );
 			}
 
-			case SDL_MOUSEBUTTONDOWN:
-				//game.SetNextState( 1 );
-				break;
-
-			default:
-				break;
+			break;
 		}
+
+		case SDL_MOUSEBUTTONDOWN:
+			//game.SetNextState( 1 );
+			break;
+
+		default:
+			break;
 	}
 }
 
@@ -139,7 +130,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 
 	{
 		const Rect dst_rect { 0, 0, winSize.x, winSize.y };
-		SDL_RenderCopy( render, image, EntireRect, &dst_rect /* same result as EntireRect */ );
+		SDL_RenderCopy( renderer, image, EntireRect, &dst_rect /* same result as EntireRect */ );
 	}
 
 	// Poor persons benchmark
@@ -241,7 +232,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 				SDL_DestroyTexture( blendedText );
 
 			Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, winSize.x - p.x );
-			blendedText = SDL_CreateTextureFromSurface( render, surf );
+			blendedText = SDL_CreateTextureFromSurface( renderer, surf );
 			SDL_FreeSurface( surf );
 
 			u32 fmt;
@@ -256,19 +247,19 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 			for( const Point & pd : shadowOffsets )
 			{
 				const Rect dst_rect = Rect{ p.x + pd.x, p.y + pd.y, blendedTextSize.x, blendedTextSize.y };
-				SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
+				SDL_RenderCopy( renderer, blendedText, EntireRect, &dst_rect );
 			}
 
 			SDL_SetTextureColorMod( blendedText, 255, 255, 255 );
 			const Rect dst_rect = { p.x, p.y, blendedTextSize.x, blendedTextSize.y };
-			SDL_RenderCopy( render, blendedText, EntireRect, &dst_rect );
+			SDL_RenderCopy( renderer, blendedText, EntireRect, &dst_rect );
 		}
 		else
 		{
-			TF_Init( render );
+			TF_Init( renderer );
 
 			Rect dimension { p.x, p.y, winSize.x - (32+p.x), 9999 };
-			TF_Render( render, text, dimension, sor::hsnr64::Palette[colorIndex] );
+			TF_Render( renderer, text, dimension, sor::hsnr64::Palette[colorIndex] );
 		}
 	}
 }

@@ -9,15 +9,15 @@ class Game
 {
 protected:
 	Window   * window;
-	Renderer * render;
+	Renderer * renderer;
 
-	bool isRunning = true;
-	u32  frame     = 0;
+	bool isRunning        = true;
+	u32  framesSinceStart = 0;
 
 	int currentStateIdx = -1;
 	int nextStateIdx    = -1;
 
-	GameState * currentState = nullptr;
+	GameState *         currentState = nullptr;
 	Vector<GameState *> allStates;
 
 	Point windowSize;
@@ -28,16 +28,19 @@ public:
 	[[nodiscard]] const Point & GetWindowSize() const { return windowSize; }
 
 	explicit Game(
-		const char * windowTitle = "SDL Game",
-		const Point  requestedSize  = Point { 1024, 720 },
-		const bool   vSync       = true );
+		const char * windowTitle   = "SDL Game",
+		const Point  requestedSize = Point { 1024, 720 },
+		const bool   vSync         = true );
 	Game(              const Game &  ) = delete;
 	Game(                    Game && ) = delete;
 	Game &  operator=( const Game &  ) = delete;
 	Game && operator=(       Game && ) = delete;
 	virtual ~Game();
 
-	virtual bool HandleEvent( const Event event );
+	virtual bool HandleEvent( const Event & event );
+	virtual void Input();
+	virtual void Update( const u64 msSinceStart, const float deltaT       );
+	virtual void Render( const u64 msSinceStart, const float deltaTNeeded );
 	virtual int Run();
 
 	virtual void SetNextState( int index ) { nextStateIdx = index; }
@@ -70,11 +73,12 @@ protected:
 	void OutputPerformanceInfo( const TimePoint current, const Duration needed );
 };
 
+// TODO: u32 msSinceStart does overflow after ~49 days, ignore for now, Game already has u64
 class GameState
 {
 protected:
 	Game     & game;
-	Renderer * render;
+	Renderer * renderer;
 
 public:
 	[[nodiscard]] virtual bool  IsFPSLimited()  const { return true; }
@@ -83,7 +87,7 @@ public:
 	explicit GameState( Game && game_, Renderer * render_ ) = delete; // prevent taking an rvalue
 	explicit GameState( Game &  game_, Renderer * render_ )
 		: game( game_ ),
-		  render( render_ )
+		  renderer( render_ )
 	{}
 	GameState(              const GameState &  ) = delete;
 	GameState(                    GameState && ) = delete;
@@ -94,7 +98,9 @@ public:
 	virtual void Init() {}
 	virtual void UnInit() {}
 
-	virtual void Events( const u32 frame, const u32 totalMSec, const float deltaT ) = 0;
-	virtual void Update( const u32 frame, const u32 totalMSec, const float deltaT ) = 0;
-	virtual void Render( const u32 frame, const u32 totalMSec, const float deltaT ) = 0;
+	virtual void HandleEvent( const Event & event ) = 0;
+	// This is mostly being replaced by HandleEvent, only use for stateful inputs
+	virtual void Input() {};
+	virtual void Update( const u32 framesSinceStart, const u32 msSinceStart, const float deltaT ) = 0;
+	virtual void Render( const u32 framesSinceStart, const u32 msSinceStart, const float deltaT ) = 0;
 };

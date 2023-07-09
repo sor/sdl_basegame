@@ -5,12 +5,12 @@ ExampleGame::ExampleGame()
 {
 	// Will be freed in Game dtor
 	allStates = {
-		new IntroState      ( *this, render ),   // 0
-		new PlasmaState     ( *this, render ),   // 1
-		new SortState       ( *this, render ),   // 2
-		new CameraState     ( *this, render ),   // 3
-		new ShooterState    ( *this, render ),   // 4
-//		new MapEditorState  ( *this, render ),   // 5
+		new IntroState      ( *this, renderer ),   // 0
+		new PlasmaState     ( *this, renderer ),   // 1
+		new SortState       ( *this, renderer ),   // 2
+		new CameraState     ( *this, renderer ),   // 3
+		new ShooterState    ( *this, renderer ),   // 4
+		new MapEditorState  ( *this, renderer ),   // 5
 	};
 
 	// The virtual call is ok here
@@ -19,7 +19,7 @@ ExampleGame::ExampleGame()
 	SetPerfDrawMode( PerformanceDrawMode::Title );
 }
 
-bool ExampleGame::HandleEvent( const Event event )
+bool ExampleGame::HandleEvent( const Event & event )
 {
 	// Global Keybindings, will be checked before the ones in GameState
 	switch( event.type )
@@ -57,7 +57,7 @@ bool ExampleGame::HandleEvent( const Event event )
 			}
 			else if( what_key.scancode == SDL_SCANCODE_6 )
 			{
-				SetNextState( 6 );
+				SetNextState( 5 );
 				return true;
 			}
 			break;

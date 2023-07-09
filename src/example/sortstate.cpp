@@ -6,7 +6,7 @@ void SortState::Init()
 
 	if( !image )
 	{
-		image = IMG_LoadTexture( render, BasePath "asset/graphic/ball.png" );
+		image = IMG_LoadTexture( renderer, BasePath "asset/graphic/ball.png" );
 	}
 
 	float iter = 0;
@@ -28,24 +28,14 @@ void SortState::Init()
 void SortState::UnInit()
 {}
 
-void SortState::Events( const u32 frame, const u32 totalMSec, const float deltaT )
+void SortState::HandleEvent( const Event & event )
 {
-	// could this be the default?
-	SDL_PumpEvents();
-
-	Event event;
-	while( SDL_PollEvent( &event ) )
-	{
-		if( game.HandleEvent( event ) )
-			continue;
-
-		if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F1 && event.key.repeat == 0 )
-			isOrdered = !isOrdered;
-		if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F2 && event.key.repeat == 0 )
-			isTransparent = !isTransparent;
-		if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
-			isDarkened = !isDarkened;
-	}
+	if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F1 && event.key.repeat == 0 )
+		isOrdered = !isOrdered;
+	if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F2 && event.key.repeat == 0 )
+		isDarkened = !isDarkened;
+	if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
+		isTransparent = !isTransparent;
 }
 
 void SortState::Update( const u32 frame, const u32 totalMSec, const float deltaT )
@@ -77,8 +67,8 @@ void SortState::Render( const u32 frame, const u32 totalMSec, const float deltaT
 	{
 		const int size = ball.z * 80.f + 48.f;
 		if( isDarkened )
-			SDL_SetTextureColorMod( image, size * 2, size * 2, size * 2 );
+			SDL_SetTextureColorMod( image, size * 2 - 40, size * 2 - 40, size * 2 - 40 );
 		Rect dst_rect { (int)ball.x - (size / 2), (int)ball.y - (size), size, size };
-		SDL_RenderCopy( render, image, EntireRect, &dst_rect );
+		SDL_RenderCopy( renderer, image, EntireRect, &dst_rect );
 	}
 }

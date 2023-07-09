@@ -6,9 +6,9 @@ void ShooterState::Init()
 
 	if( !projectile[0] )
 	{
-		projectile[0] = IMG_LoadTexture( render, BasePath "asset/graphic/fire.png"   );
-		projectile[1] = IMG_LoadTexture( render, BasePath "asset/graphic/ice.png"    );
-		projectile[2] = IMG_LoadTexture( render, BasePath "asset/graphic/poison.png" );
+		projectile[0] = IMG_LoadTexture( renderer, BasePath "asset/graphic/fire.png"   );
+		projectile[1] = IMG_LoadTexture( renderer, BasePath "asset/graphic/ice.png"    );
+		projectile[2] = IMG_LoadTexture( renderer, BasePath "asset/graphic/poison.png" );
 
 		SDL_SetTextureColorMod( projectile[2], 191, 191, 191 );
 	}
@@ -26,76 +26,55 @@ void ShooterState::UnInit()
 	// TODO
 }
 
-void ShooterState::Events( const u32 frame, const u32 totalMSec, const float deltaT )
+void ShooterState::HandleEvent( const Event & event )
 {
-	// Could this be the default?
-	SDL_PumpEvents();
-
-	Event event;
-	while( SDL_PollEvent( &event ) )
+	if( event.type == SDL_KEYDOWN && event.key.repeat == 0 )
 	{
-		if( game.HandleEvent( event ) )
-			continue;
+		if( event.key.keysym.scancode == SDL_SCANCODE_F1 ) bgIsVisible[0] = !bgIsVisible[0];
+		if( event.key.keysym.scancode == SDL_SCANCODE_F2 ) bgIsVisible[1] = !bgIsVisible[1];
+		if( event.key.keysym.scancode == SDL_SCANCODE_F3 ) bgIsVisible[2] = !bgIsVisible[2];
+		if( event.key.keysym.scancode == SDL_SCANCODE_F4 ) bgIsVisible[3] = !bgIsVisible[3];
 
-		if( event.type == SDL_KEYDOWN && event.key.repeat == 0 )
+		// Toggle all
+		if( event.key.keysym.scancode == SDL_SCANCODE_F5 )
+			bgIsVisible[0] = bgIsVisible[1] = bgIsVisible[2] = bgIsVisible[3] = !bgIsVisible[0];
+
+		if( event.key.keysym.scancode == SDL_SCANCODE_F6 ) isInverted = !isInverted;
+		if( event.key.keysym.scancode == SDL_SCANCODE_F7 ) isEased    = !isEased;
+		if( event.key.keysym.scancode == SDL_SCANCODE_F8 ) isFlux     = !isFlux;
+	}
+	else if( event.type == SDL_MOUSEBUTTONDOWN )
+	{
+		const FPoint mousePos = FPoint {
+			(float)event.button.x,
+			(float)event.button.y } - mouseOffsetEased - cam;
+		//enemyProjectiles.push_back( mousePos );
+		//rvProjectiles.Spawn(mousePos);
+		//rvProjectiles.Spawn({1,1});
+		SpawnProjectile( mousePos );
+		Mix_PlayChannel( -1, sound, 0 );
+	}
+	else if( event.type == SDL_MOUSEMOTION )
+	{
+		const FPoint halfWinSize = toF( game.GetWindowSize() / 2 );
+		const FPoint mousePos    = { (float)event.motion.x, (float)event.motion.y };
+
+		mouseOffset = halfWinSize - mousePos;
+
+		if( event.motion.state != 0 )
 		{
-			if( event.key.keysym.scancode == SDL_SCANCODE_F1 ) bgIsVisible[0] = !bgIsVisible[0];
-			if( event.key.keysym.scancode == SDL_SCANCODE_F2 ) bgIsVisible[1] = !bgIsVisible[1];
-			if( event.key.keysym.scancode == SDL_SCANCODE_F3 ) bgIsVisible[2] = !bgIsVisible[2];
-			if( event.key.keysym.scancode == SDL_SCANCODE_F4 ) bgIsVisible[3] = !bgIsVisible[3];
-
-			// Toggle all
-			if( event.key.keysym.scancode == SDL_SCANCODE_F5 )
-				bgIsVisible[0] = bgIsVisible[1] = bgIsVisible[2] = bgIsVisible[3] = !bgIsVisible[0];
-
-			if( event.key.keysym.scancode == SDL_SCANCODE_F6 ) isInverted = !isInverted;
-			if( event.key.keysym.scancode == SDL_SCANCODE_F7 ) isEased = !isEased;
-			if( event.key.keysym.scancode == SDL_SCANCODE_F8 ) isFlux = !isFlux;
-		}
-		else if( event.type == SDL_MOUSEBUTTONDOWN )
-		{
-			const FPoint mousePos = FPoint {
-				(float)event.button.x,
-				(float)event.button.y } - mouseOffsetEased - cam;
-			//enemyProjectiles.push_back( mousePos );
-			//rvProjectiles.Spawn(mousePos);
-			//rvProjectiles.Spawn({1,1});
-			SpawnProjectile( mousePos );
-		}
-		else if( event.type == SDL_MOUSEMOTION )
-		{
-			const Point  halfWinSize  = game.GetWindowSize() / 2;
-			const FPoint halfWinSizeF = { (float)halfWinSize.x, (float)halfWinSize.y };
-			const FPoint mousePos     = { (float)event.motion.x, (float)event.motion.y };
-
-			mouseOffset = halfWinSizeF - mousePos;
-
-			if( event.motion.state != 0 )
-			{
-				const FPoint mousePosOffsetted = FPoint {
-					(float)event.motion.x,
-					(float)event.motion.y } - mouseOffsetEased - cam;
-				//enemyProjectiles.push_back( mousePosOffsetted );
-				SpawnProjectile( mousePosOffsetted );
-				Mix_PlayChannel( -1, sound, 0 );
-			}
-		}
-		else if( event.type == SDL_MOUSEBUTTONUP )
-		{
-			//mouseOffset = { 0, 0 };
+			const FPoint mousePosOffsetted = FPoint {
+				(float)event.motion.x,
+				(float)event.motion.y } - mouseOffsetEased - cam;
+			//enemyProjectiles.push_back( mousePosOffsetted );
+			SpawnProjectile( mousePosOffsetted );
+			Mix_PlayChannel( -1, sound, 0 );    // TODO: do not trigger a sound every frame
 		}
 	}
-
-	const u8 * key_array = SDL_GetKeyboardState( nullptr );
-	float factor = key_array[SDL_SCANCODE_RSHIFT]
-		? 600.f
-		: 80.0f;
-
-	if( key_array[SDL_SCANCODE_LEFT]  ) cam.x += deltaT * factor;
-	if( key_array[SDL_SCANCODE_RIGHT] )	cam.x -= deltaT * factor;
-
-	if( key_array[SDL_SCANCODE_UP]    ) cam.y += deltaT * factor;
-	if( key_array[SDL_SCANCODE_DOWN]  ) cam.y -= deltaT * factor;
+	else if( event.type == SDL_MOUSEBUTTONUP )
+	{
+		//mouseOffset = { 0, 0 };
+	}
 }
 
 void ShooterState::Update( const u32 frame, const u32 totalMSec, const float deltaT )
@@ -138,7 +117,7 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 		if( shootCooldown < totalMSec )
 			shootCooldown = totalMSec + 250;
 
-		SpawnMyProjectile( FPoint { player.x + player.w,      player.y + player.h / 2 } );
+		SpawnMyProjectile( FPoint { player.x + player.w,      player.y + player.h / 2      } );
 		SpawnMyProjectile( FPoint { player.x + player.w - 20, player.y + player.h / 2 - 10 } );
 		SpawnMyProjectile( FPoint { player.x + player.w - 20, player.y + player.h / 2 + 10 } );
 		for( int i = 0; i < satCount; ++i )
@@ -156,9 +135,9 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 		if( !IsProjectileAlive( it ) )
 			continue;
 
-		const Point pos = { (int)p.x, (int)p.y };
-		const bool isJustOutOfLevel = p.x < 0;
-		const bool isPlayerHit = SDL_PointInRect( &pos, &playerRect );
+		const Point pos              = { (int)p.x, (int)p.y };
+		const bool  isJustOutOfLevel = p.x < 0;
+		const bool  isPlayerHit      = SDL_PointInRect( &pos, &playerRect );
 
 		bool isPlayerExtraHit = false;
 		for( int i = 0; i < satCount; ++i )
@@ -199,7 +178,7 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 
 		for( auto & e : enemies )
 		{
-			const Rect enemyRect = { (int)e.x, (int)e.y, (int)e.w, (int)e.h };
+			const Rect enemyRect  = { (int)e.x, (int)e.y, (int)e.w, (int)e.h };
 			const bool isEnemyHit = SDL_PointInRect( &pos, &enemyRect );
 			if( isEnemyHit )
 			{
@@ -211,7 +190,7 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 		}
 	}
 
-	CameraState::Update(frame, totalMSec, deltaT);
+	CameraState::Update( frame, totalMSec, deltaT );
 }
 
 template <typename T>
@@ -334,8 +313,8 @@ void ShooterState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 				(int)(p.y + fluxCam.y) - pivot.y,
 				texSize.x * 2,
 				texSize.y * 2 };
-			SDL_RenderCopyEx( render, projectile[0], &srcIndexed, &pos, 90, &pivot, SDL_RendererFlip::SDL_FLIP_NONE );
-			//SDL_RenderCopy( render, projectile[2], &src, &pos );
+			SDL_RenderCopyEx( renderer, projectile[0], &srcIndexed, &pos, 90, &pivot, SDL_RendererFlip::SDL_FLIP_NONE );
+			//SDL_RenderCopy( renderer, projectile[2], &src, &pos );
 		}
 	}
 
@@ -361,38 +340,38 @@ void ShooterState::Render( const u32 frame, u32 totalMSec, const float deltaT )
 				(int)(p.y + fluxCam.y) - pivot.y,
 				texSize.x * 2,
 				texSize.y * 2 };
-			SDL_RenderCopyEx( render, projectile[2], &srcIndexed, &pos, 180, &pivot, SDL_RendererFlip::SDL_FLIP_NONE );
-			//SDL_RenderCopy( render, projectile[2], &src, &pos );
+			SDL_RenderCopyEx( renderer, projectile[2], &srcIndexed, &pos, 180, &pivot, SDL_RendererFlip::SDL_FLIP_NONE );
+			//SDL_RenderCopy( renderer, projectile[2], &src, &pos );
 		}
 	}
 
 	// Draw player
-	SDL_SetRenderDrawBlendMode( render, SDL_BLENDMODE_BLEND );
-	SDL_SetRenderDrawColor( render, 0, 255, 0, 127 );
+	SDL_SetRenderDrawBlendMode( renderer, SDL_BLENDMODE_BLEND );
+	SDL_SetRenderDrawColor( renderer, 0, 255, 0, 127 );
 
 	//const Point fluxCamI = { (int)fluxCam.x, (int)fluxCam.y };
 	const FRect pos = player + fluxCam;
-	SDL_RenderFillRectF( render, &pos );
+	SDL_RenderFillRectF( renderer, &pos );
 
 	// Draw player satellites
-	SDL_SetRenderDrawBlendMode( render, SDL_BLENDMODE_NONE );
-	SDL_SetRenderDrawColor( render, 0, 255, 255, 255 );
+	SDL_SetRenderDrawBlendMode( renderer, SDL_BLENDMODE_NONE );
+	SDL_SetRenderDrawColor( renderer, 0, 255, 255, 255 );
 
 	for( int i = 0; i < satCount; ++i )
 	{
 		const FPoint sat2Pos = sat[i] + fluxCam;
-		DrawCircle( render, Point { (int)(sat2Pos.x), (int)(sat2Pos.y) }, satRadius );
+		DrawCircle( renderer, Point { (int)(sat2Pos.x), (int)(sat2Pos.y) }, satRadius );
 	}
 
 	// Draw enemies
-	SDL_SetRenderDrawBlendMode( render, SDL_BLENDMODE_BLEND );
-	SDL_SetRenderDrawColor( render, 255, 0, 0, 127 );
+	SDL_SetRenderDrawBlendMode( renderer, SDL_BLENDMODE_BLEND );
+	SDL_SetRenderDrawColor( renderer, 255, 0, 0, 127 );
 
 	for(auto & e : enemies)
 	{
 		//const Point fluxCamI = { (int)fluxCam.x, (int)fluxCam.y };
 		const FRect posOffsetted = e + fluxCam;
-		SDL_RenderFillRectF( render, &posOffsetted );
+		SDL_RenderFillRectF( renderer, &posOffsetted );
 	}
 
 	for( int i = 3; i <= 3; ++i ) // Render the last 1 layers, rendered back to front
