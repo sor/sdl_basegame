@@ -20,17 +20,6 @@ void IntroState::Init()
 			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
 	}
 
-	if( !tiles )
-	{
-		auto tiles_ = IMG_Load( BasePath "asset/graphic/16x16_hsnr64.png" );
-		SDL_SetColorKey( tiles_, true, SDL_MapRGB( tiles_->format, 178, 185, 212 ) );
-		tiles = SDL_CreateTextureFromSurface( renderer, tiles_ );
-		SDL_FreeSurface( tiles_ );
-		//tiles = IMG_LoadTexture( renderer, BasePath "asset/graphic/16x16_hsnr64.png" );
-		if( !tiles )
-			print( stderr, "IMG_LoadTexture failed: {}\n", IMG_GetError() );
-	}
-
 	if( !music )
 	{
 		music = Mix_LoadMUS( BasePath "asset/music/severance.ogg" );

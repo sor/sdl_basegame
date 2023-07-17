@@ -9,6 +9,8 @@ void MapEditorState::Init()
 	SDL_Surface * surface = IMG_Load( BasePath "asset/graphic/16x16_hsnr64.png" );
 	if( surface != nullptr )
 	{
+		SDL_SetColorKey( surface, true, SDL_MapRGB( surface->format, 0, 0, 0 ) );
+
 		tileSet.texture     = SDL_CreateTextureFromSurface( renderer, surface );
 		tileSet.textureSize = { surface->w, surface->h };
 		tileSet.tileSize    = { 16, 16 };

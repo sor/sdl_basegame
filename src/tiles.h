@@ -9,7 +9,8 @@
 
 // The Tileset to use is specified by the TileLayer
 // Uses 3 or 3.5 (rounded up to 4) bytes, without the bitfield-micro-optimization this would be 8 bytes
-// With the 3 byte version only an 12 bit index is possible, meaning 4096 indices (64^2) are possible
+// The 3 byte version only uses a 12 bit index, meaning 4096 indices (e.g. 64^2) are possible
+// The 4 byte version uses a 16 bit index, meaning 64k indices (e.g. 256^2) are possible
 struct Tile
 {
 #ifdef TILE_INDEX_MAX_4096
@@ -97,11 +98,11 @@ struct TileInfo
 struct TileSet
 {
 	Texture *       texture;
-	Point           textureSize = {  1024,  1024 };     // Refering to the texture x,y = size of one tile; w,h = amount of tiles
-	Point           tileSize    = {    16,    16 };     // Size of a Tile in pixels
-	Point           tileCount   = {    64,    64 };     // Refering to the texture x,y = size of one tile; w,h = amount of tiles
-//	Point           startOffset = {     0,     0 };     // Empty space left/top of the first Tile
-//	Point           margin      = {     0,     0 };     // Empty space between the Tiles
+	Point           textureSize = {  512,  1024 };     // Refering to the texture x,y = size of one tile; w,h = amount of tiles
+	Point           tileSize    = {   16,    16 };     // Size of a Tile in pixels
+	Point           tileCount   = {   32,    64 };     // Refering to the texture x,y = size of one tile; w,h = amount of tiles
+//	Point           startOffset = {    0,     0 };     // Empty space left/top of the first Tile
+//	Point           margin      = {    0,     0 };     // Empty space between the Tiles
 };
 
 // Uniform Tiling of 2D Space

@@ -28,7 +28,6 @@ class IntroState : public GameState
 protected:
 	Font    * font              = nullptr;
 	Texture * image             = nullptr;
-	Texture * tiles             = nullptr;
 	Music   * music             = nullptr;
 	Chunk   * sound             = nullptr;
 	Texture * blendedText       = nullptr;

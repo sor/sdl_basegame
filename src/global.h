@@ -75,6 +75,7 @@ using Event       = SDL_Event;
 using Point       = SDL_Point;
 using FPoint      = SDL_FPoint;
 using Keysym      = SDL_Keysym;
+using Keymod      = SDL_Keymod;
 using Rect        = SDL_Rect;
 using FRect       = SDL_FRect;
 using Surface     = SDL_Surface;
@@ -241,11 +242,11 @@ inline void SDL_ImGui_Frame( Renderer * renderer, Window * window )
 	if(0){
 		ImGuiIO& io = ImGui::GetIO();
 
-		static float f = 0.0f;
-		static int   counter = 0;
-		static bool  show_another_window;
+		static float  f           = 0.0f;
+		static int    counter     = 0;
+		static bool   show_another_window;
 		static ImVec4 clear_color = { 0.45f, 0.55f, 0.60f, 1.00f };
-		static FRect col          = { 0.45f, 0.55f, 0.60f, 1.00f };
+		static FRect  col         = { 0.45f, 0.55f, 0.60f, 1.00f };
 
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 

@@ -377,7 +377,8 @@ inline void TF_Init( Renderer * renderer )
 		SharedPtr<Surface>
 		//Surface *
 		    tileSurf = IMG_Load( BasePath "asset/graphic/16x16_hsnr64.png" );
-		SDL_SetColorKey( tileSurf, true, SDL_MapRGB( tileSurf->format, 178, 185, 212 ) );
+//		SDL_SetColorKey( tileSurf, true, SDL_MapRGB( tileSurf->format, 178, 185, 212 ) );
+		SDL_SetColorKey( tileSurf, true, SDL_MapRGB( tileSurf->format, 0, 0, 0 ) );
 		tiles = SDL_CreateTextureFromSurface( renderer, tileSurf );
 		//SDL_FreeSurface(tileSurf);
 		//tiles = IMG_LoadTexture( renderer, BasePath "asset/graphic/16x16_hsnr64.png" );

@@ -114,14 +114,12 @@ void Game::Update( const u64 msSinceStart, const float deltaT )
 void Game::Render( const u64 msSinceStart, const float deltaTNeeded )
 {
 	const Color clear = currentState->GetClearColor();
-	// TODO: SDL_RenderSetScale( renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y );
-	//if( clear.a != SDL_ALPHA_TRANSPARENT)
-	{
-		SDL_SetRenderDrawColor( renderer, clear.r, clear.g, clear.b, clear.a );
-		SDL_RenderClear( renderer );
-	}
+	SDL_SetRenderDrawColor( renderer, clear.r, clear.g, clear.b, clear.a );
+	SDL_RenderClear( renderer );
 
 	ImGuiOnly(
+		const ImGuiIO & io = ImGui::GetIO();
+		SDL_RenderSetScale( renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y );
 		ImGui_ImplSDLRenderer2_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
@@ -142,7 +140,7 @@ void Game::Render( const u64 msSinceStart, const float deltaTNeeded )
 bool Game::HandleEvent( const Event & event )
 {
 	ImGuiOnly(
-		ImGuiIO & io = ImGui::GetIO();
+		const ImGuiIO & io = ImGui::GetIO();
 		ImGui_ImplSDL2_ProcessEvent( &event );
 	)
 
@@ -155,8 +153,8 @@ bool Game::HandleEvent( const Event & event )
 
 		case SDL_KEYDOWN:
 		{
-			auto & key_event = event.key;
-			Keysym what_key = key_event.keysym;
+			const auto & key_event = event.key;
+			const Keysym what_key = key_event.keysym;
 
 			if( (what_key.mod & KMOD_ALT) &&
 			    (what_key.scancode == SDL_SCANCODE_F4) )
