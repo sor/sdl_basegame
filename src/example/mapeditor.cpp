@@ -28,7 +28,6 @@ void MapEditorState::Init()
 }
 
 void MapEditorState::UnInit()
-{}
 {
 
 }
