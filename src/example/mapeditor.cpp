@@ -43,9 +43,8 @@ void MapEditorState::HandleSpecificEvent( const E & ev )
 
 bool MapEditorState::HandleEvent( const Event & ev )
 {
+	// TODO
 
-void MapEditorState::HandleEvent( const Event & event )
-{}
 	return true; // Not really correct
 }
 
