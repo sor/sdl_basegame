@@ -97,10 +97,16 @@ void Game::Input()
 	Event event;
 	while( SDL_PollEvent( &event ) )
 	{
+		// First try if Game wants to handle the input (globals), then pass it to the GameState
 		if( HandleEvent( event ) )
+		{
 			continue;
+		}
 		else
+		{
+			// Returns a bool to tell if the Event was expected and handled, if false, then this return could bubble up to a stacked gamestate (future feature)
 			currentState->HandleEvent( event );
+		}
 	}
 
 	currentState->Input();

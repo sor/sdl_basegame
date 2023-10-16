@@ -1,7 +1,9 @@
 #include "examplegame.h"
 
+constexpr bool doBenchmark = true;
+
 ExampleGame::ExampleGame()
-	: Game( "Example SDL Game", Point{ 1280, 960 }, false )
+	: Game( "Example SDL Game", Point{ 1280, 960 }, !doBenchmark )
 {
 	// Will be freed in Game dtor
 	allStates = {
@@ -22,6 +24,9 @@ ExampleGame::ExampleGame()
 bool ExampleGame::HandleEvent( const Event & event )
 {
 	// Global Keybindings, will be checked before the ones in GameState
+	if( Game::HandleEvent( event ) )
+		return true;
+
 	switch( event.type )
 	{
 		case SDL_KEYDOWN:
@@ -66,5 +71,6 @@ bool ExampleGame::HandleEvent( const Event & event )
 		default:
 			break;
 	}
-	return Game::HandleEvent( event );
+
+	return false;
 }

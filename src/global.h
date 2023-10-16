@@ -152,8 +152,10 @@ inline void print_once(fmt::format_string<T...> fmt, T&&... args)
 
 
 #ifdef IMGUI_VERSION
+
 #define IMGUI
 #define ImGuiOnly( ... ) __VA_ARGS__
+
 inline void SDL_Init_ImGui()
 {
 	// Decide GL+GLSL versions

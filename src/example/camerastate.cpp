@@ -38,7 +38,7 @@ void CameraState::UnInit()
 	// TODO
 }
 
-void CameraState::HandleEvent( const Event & event )
+bool CameraState::HandleEvent( const Event & event )
 {
 	if( event.type == SDL_KEYDOWN && event.key.repeat == 0 )
 	{
@@ -54,6 +54,8 @@ void CameraState::HandleEvent( const Event & event )
 		if( event.key.keysym.scancode == SDL_SCANCODE_F6 ) isInverted = !isInverted;
 		if( event.key.keysym.scancode == SDL_SCANCODE_F7 ) isEased    = !isEased;
 		if( event.key.keysym.scancode == SDL_SCANCODE_F8 ) isFlux     = !isFlux;
+
+		return true; // Not 100% correct
 	}
 	else if( (event.type == SDL_MOUSEBUTTONDOWN)
 		  || (event.type == SDL_MOUSEMOTION && event.motion.state != 0) )
@@ -64,10 +66,18 @@ void CameraState::HandleEvent( const Event & event )
 		mouseOffset = isInverted
 			? halfWinSize - mousePos
 			: mousePos - halfWinSize;
+
+		return true;
 	}
 	else if( event.type == SDL_MOUSEBUTTONUP )
 	{
 		mouseOffset = { 0, 0 };
+
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 

@@ -7,6 +7,7 @@ int main( int argc, char * argv [] )
 try
 {
 	std::ios_base::sync_with_stdio(false);
+	std::ios_base::sync_with_stdio( false );
 	ExampleGame game;
 	return game.Run();
 }

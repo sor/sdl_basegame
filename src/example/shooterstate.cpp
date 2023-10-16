@@ -26,7 +26,7 @@ void ShooterState::UnInit()
 	// TODO
 }
 
-void ShooterState::HandleEvent( const Event & event )
+bool ShooterState::HandleEvent( const Event & event )
 {
 	if( event.type == SDL_KEYDOWN && event.key.repeat == 0 )
 	{
@@ -42,6 +42,8 @@ void ShooterState::HandleEvent( const Event & event )
 		if( event.key.keysym.scancode == SDL_SCANCODE_F6 ) isInverted = !isInverted;
 		if( event.key.keysym.scancode == SDL_SCANCODE_F7 ) isEased    = !isEased;
 		if( event.key.keysym.scancode == SDL_SCANCODE_F8 ) isFlux     = !isFlux;
+
+		return true; // Not 100% correct
 	}
 	else if( event.type == SDL_MOUSEBUTTONDOWN )
 	{
@@ -51,8 +53,11 @@ void ShooterState::HandleEvent( const Event & event )
 		//enemyProjectiles.push_back( mousePos );
 		//rvProjectiles.Spawn(mousePos);
 		//rvProjectiles.Spawn({1,1});
-		SpawnProjectile( mousePos );
-		Mix_PlayChannel( -1, sound, 0 );
+
+		// This is spawning a projectile inside Update()
+		spawnProjectileAt = mousePos;
+
+		return true;
 	}
 	else if( event.type == SDL_MOUSEMOTION )
 	{
@@ -67,13 +72,22 @@ void ShooterState::HandleEvent( const Event & event )
 				(float)event.motion.x,
 				(float)event.motion.y } - mouseOffsetEased - cam;
 			//enemyProjectiles.push_back( mousePosOffsetted );
-			SpawnProjectile( mousePosOffsetted );
-			Mix_PlayChannel( -1, sound, 0 );    // TODO: do not trigger a sound every frame
+
+			// This is spawning a projectile inside Update()
+			spawnProjectileAt = mousePosOffsetted;
 		}
+
+		return true;
 	}
 	else if( event.type == SDL_MOUSEBUTTONUP )
 	{
 		//mouseOffset = { 0, 0 };
+
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
@@ -99,6 +113,20 @@ void ShooterState::Update( const u32 frame, const u32 totalMSec, const float del
 	{
 		sat[i].x = cos( angle + satOffsetAngle * (float)i ) * (-150) /*- sin(angle) * (100)*/ + (player.x + player.w / 2);
 		sat[i].y = sin( angle + satOffsetAngle * (float)i ) * (-150) /*+ cos(angle) * (100)*/ + (player.y + player.h / 2);
+	}
+
+	if( spawnProjectileAt.x >= 0
+	 && spawnProjectileAt.y >= 0 )
+	{
+		SpawnEnemyProjectile( spawnProjectileAt );
+
+		if( spawnProjectileSoundCD < totalMSec )
+		{
+			Mix_PlayChannel( -1, sound, 0 );
+			spawnProjectileSoundCD = totalMSec + 35;
+		}
+
+		spawnProjectileAt = { -1, -1 };
 	}
 
 	for( auto & p : enemyProjectiles )
@@ -383,7 +411,7 @@ bool ShooterState::IsProjectileAlive( const Vector<FPoint>::iterator & it ) cons
 	return isfinite( it->x );
 }
 
-void ShooterState::SpawnProjectile( const FPoint pos )
+void ShooterState::SpawnEnemyProjectile( const FPoint pos )
 {
 	if( numDeadEnemyProj > 20 )
 	{

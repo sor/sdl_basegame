@@ -29,9 +29,26 @@ void MapEditorState::Init()
 
 void MapEditorState::UnInit()
 {}
+{
+
+}
+
+template <typename E>
+void MapEditorState::HandleSpecificEvent( const E & ev )
+{
+	// Not implemented by design
+	// Assert here to catch unhandled events
+	//assert( false );
+}
+
+
+bool MapEditorState::HandleEvent( const Event & ev )
+{
 
 void MapEditorState::HandleEvent( const Event & event )
 {}
+	return true; // Not really correct
+}
 
 void MapEditorState::Update( const u32 frame, const u32 totalMSec, const float deltaT )
 {}
@@ -66,4 +83,5 @@ void MapEditorState::Render( const u32 frame, const u32 totalMSec, const float d
 
 }
 
+// Wieso ist dieser Comment hier und nicht irgendwo zentral? :D
 // BFS mit 2 Startpunkten berechnen, braucht keine 2 kalkulationen, weil er mit beiden spielern in der queue starten kann, deswegen direkt bestimmt wer am nähesten dran ist

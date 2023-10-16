@@ -65,7 +65,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void HandleEvent( const Event & event ) override;
+	bool HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 
@@ -88,7 +88,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void HandleEvent( const Event & event ) override;
+	bool HandleEvent( const Event & event ) override;
 	void Input() override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
@@ -112,7 +112,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void HandleEvent( const Event & event ) override;
+	bool HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
@@ -120,8 +120,8 @@ public:
 class CameraState : public GameState
 {
 protected:
-	Texture * bg[4] = { nullptr };
-	Point bgSize[4];
+	Texture *    bg[4]      = { nullptr };
+	Point        bgSize[4]; // Is initialized in Init()
 	const FPoint bgStart[4] = {
 		{ 0,    -330 },
 		{ -350, -330 },
@@ -156,7 +156,7 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void HandleEvent( const Event & event ) override;
+	bool HandleEvent( const Event & event ) override;
 	void Input() override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
@@ -192,6 +192,10 @@ protected:
 	FRect   player    = { 200, 530, 200, 100 };
 	FPoint  sat[5]    = { { 0, 0 } };
 	int     satCount  = 5;
+
+	FPoint spawnProjectileAt;           // Valid if x and y is >= 0
+	u32    spawnProjectileSoundCD = 0;  //
+
 	static constexpr const int satRadius = 25;
 
 public:
@@ -201,13 +205,13 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void HandleEvent( const Event & event ) override;
+	bool HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 
 	[[nodiscard]]
 	bool IsProjectileAlive( const Vector<FPoint>::iterator & it ) const;
-	void SpawnProjectile(   const FPoint pos );
+	void SpawnEnemyProjectile( const FPoint pos );
 	void SpawnMyProjectile( const FPoint pos );
 	void RetireProjectile(  const Vector<FPoint>::iterator & it );
 	void RetireMyProjectile(const Vector<FPoint>::iterator & it );
@@ -256,7 +260,9 @@ public:
 	void Init() override;
 	void UnInit() override;
 
-	void HandleEvent( const Event & event ) override;
+	template <typename E>
+	void HandleSpecificEvent( const E & ev );
+	bool HandleEvent( const Event & event ) override;
 	void Update( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 

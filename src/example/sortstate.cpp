@@ -28,7 +28,7 @@ void SortState::Init()
 void SortState::UnInit()
 {}
 
-void SortState::HandleEvent( const Event & event )
+bool SortState::HandleEvent( const Event & event )
 {
 	if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F1 && event.key.repeat == 0 )
 		isOrdered = !isOrdered;
@@ -36,6 +36,8 @@ void SortState::HandleEvent( const Event & event )
 		isDarkened = !isDarkened;
 	if( event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_F3 && event.key.repeat == 0 )
 		isTransparent = !isTransparent;
+
+	return true; // Not really correct
 }
 
 void SortState::Update( const u32 frame, const u32 totalMSec, const float deltaT )

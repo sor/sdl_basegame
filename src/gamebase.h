@@ -98,7 +98,9 @@ public:
 	virtual void Init() {}
 	virtual void UnInit() {}
 
-	virtual void HandleEvent( const Event & event ) = 0;
+	// Returns a bool to know if the Event was handled
+	// maybe useful in the future if GameStates could be stacked (not possible yet)
+	virtual bool HandleEvent( const Event & event ) = 0;
 	// This is mostly being replaced by HandleEvent, only use for stateful inputs
 	virtual void Input() {};
 	virtual void Update( const u32 framesSinceStart, const u32 msSinceStart, const float deltaT ) = 0;

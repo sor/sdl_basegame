@@ -26,13 +26,16 @@ void PlasmaState::UnInit()
 	IntroState::UnInit();
 }
 
-void PlasmaState::HandleEvent( const Event & event )
+bool PlasmaState::HandleEvent( const Event & event )
 {
 	switch( event.type )
 	{
 		case SDL_MOUSEWHEEL:
 			brightness += event.wheel.y*3;
+			return true;
 	}
+
+	return false;
 }
 
 void PlasmaState::Input()

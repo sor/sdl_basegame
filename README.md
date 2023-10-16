@@ -2,6 +2,18 @@
 
 A skeleton project to start your SDL2 journey
 
+- Includes SDL + libraries:
+  - Image - Loading of common image types
+  - TTF - Loading and rendering of TrueType and OpenType fonts
+  - Mixer - Loading and mixing of various audio formats
+  - Net - Network communication 
+- As well as those other helpful libraries
+  - [{fmt}](https://github.com/fmtlib/fmt) - Implementation of C++20's std::format, available now 
+  - [Dear ImGUI](https://github.com/ocornut/imgui) - Simple immediate mode user interface
+  - [NativeFileDialog](https://github.com/mlabbe/nativefiledialog) - File dialogs that work under Linux, Win and Mac
+
+---
+
 # Classes
 
 - **Game**: The base class for your game

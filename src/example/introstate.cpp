@@ -57,7 +57,7 @@ void IntroState::UnInit()
 	*/
 }
 
-void IntroState::HandleEvent( const Event & event )
+bool IntroState::HandleEvent( const Event & event )
 {
 	switch( event.type )
 	{
@@ -96,6 +96,12 @@ void IntroState::HandleEvent( const Event & event )
 			{
 				game.SetNextState( 0 );
 			}
+			else
+			{
+				return false; // Not handled
+			}
+
+			return true; // Confusing control flow: Handled by all but the else case
 
 			break;
 		}
@@ -107,6 +113,8 @@ void IntroState::HandleEvent( const Event & event )
 		default:
 			break;
 	}
+
+	return false;
 }
 
 void IntroState::Update( const u32 frame, const u32 totalMSec, const float deltaT )
@@ -160,7 +168,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 			static bool drawColorNumber = false;
 			//ImGuiIO & io = ImGui::GetIO();
 			ImGui::Begin( "Introstate", nullptr, ImGuiWindowFlags_NoFocusOnAppearing );
-			if(frame==0)
+			if( frame == 0 ) // Do not focus this new window
 				ImGui::SetWindowFocus( nullptr );
 
 			if( ImGui::SliderInt( "int", &p.x, 0, 320 ) && auto_update )
@@ -178,7 +186,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 
 			ImGui::PushID("fg color");
 			ImGui::PushStyleVar( ImGuiStyleVar_FrameBorderSize, 1);
-			// CARE: ImU32 as color is 0XAABBGGRR - opposite of what might be expected
+			// CARE: ImU32 as color is 0xAABBGGRR - opposite of what might be expected
 			ImGui::PushStyleColor( ImGuiCol_Border, 0xAAFFFFFF );
 			const fmt::format_string<int> fmt = drawColorNumber
 			                                    ? fmt::format_string<int>( "{:02}" )

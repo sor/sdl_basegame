@@ -15,7 +15,7 @@ set( $ENV{DOTNET_CLI_TELEMETRY_OPTOUT}  1 )
 set(      FMT_HEADER_ONLY               1 )
 
 if( NOT MSVC )
-    # Might rework MSVC to align with the adjusted CLion paths
+    # I might later rework MSVC paths, to align with the adjusted CLion paths
     set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 endif()
 
@@ -126,8 +126,8 @@ if( MSVC )
     #add_link_options( /LTCG )
 else()
     # needs to be before all the -Wno-*
-    set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wall -Wextra -Werror=parentheses -Werror=uninitialized" )
-    set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wall -Wextra -Werror=parentheses -Werror=uninitialized" )
+    set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wall -Wextra -Werror=parentheses -Werror=uninitialized -Werror=return-type" )
+    set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wall -Wextra -Werror=parentheses -Werror=uninitialized -Werror=return-type" )
 
     set( CMAKE_C_FLAGS           "${CMAKE_C_FLAGS}           -Wno-unused-parameter" )   # baseclass functions have plenty unused parameters
     set( CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS}         -Wno-unused-parameter" )   # baseclass functions have plenty unused parameters
@@ -172,7 +172,7 @@ endif()
 #    message(WARNING "IPO is not supported: ${output}")
 #endif()
 
-add_compile_options( "$<$<CONFIG:DEBUG>:-D_DEBUG -DDEBUG>" )
+add_compile_options( "$<$<CONFIG:DEBUG>:-D_DEBUG>" )
 
 add_executable( sdl_basegame
         src/global.h
