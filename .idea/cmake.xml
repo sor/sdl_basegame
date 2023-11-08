@@ -2,12 +2,12 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug-Clang" ENABLED="true" GENERATION_DIR="build/debug-clang" CONFIG_NAME="Debug" TOOLCHAIN_NAME="clang" />
-      <configuration PROFILE_NAME="Debug-GCC" ENABLED="true" GENERATION_DIR="build/debug-gcc" CONFIG_NAME="Debug" TOOLCHAIN_NAME="gcc" />
-      <configuration PROFILE_NAME="Debug-MSVC" ENABLED="true"  GENERATION_DIR="build/debug-msvc" CONFIG_NAME="Debug" TOOLCHAIN_NAME="msvc" />
-      <configuration PROFILE_NAME="Release-Clang" ENABLED="true" GENERATION_DIR="build/release-clang" CONFIG_NAME="Release" TOOLCHAIN_NAME="clang" />
-      <configuration PROFILE_NAME="Release-GCC" ENABLED="true" GENERATION_DIR="build/release-gcc" CONFIG_NAME="Release" TOOLCHAIN_NAME="gcc" />
-      <configuration PROFILE_NAME="Release-MSVC" ENABLED="true"  GENERATION_DIR="build/release-msvc" CONFIG_NAME="Release" TOOLCHAIN_NAME="msvc" />
+      <configuration PROFILE_NAME="Debug-Clang" ENABLED="true" GENERATION_DIR="out/build/debug-clang" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Clang" />
+      <configuration PROFILE_NAME="Debug-GCC" ENABLED="true" GENERATION_DIR="out/build/debug-gcc" CONFIG_NAME="Debug" TOOLCHAIN_NAME="GCC" />
+      <configuration PROFILE_NAME="Debug-MSVC" ENABLED="true" GENERATION_DIR="out/build/debug-msvc" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Visual Studio" />
+      <configuration PROFILE_NAME="Release-Clang" ENABLED="true" GENERATION_DIR="out/build/release-clang" CONFIG_NAME="Release" TOOLCHAIN_NAME="Clang" />
+      <configuration PROFILE_NAME="Release-GCC" ENABLED="true" GENERATION_DIR="out/build/release-gcc" CONFIG_NAME="Release" TOOLCHAIN_NAME="GCC" />
+      <configuration PROFILE_NAME="Release-MSVC" ENABLED="true" GENERATION_DIR="out/build/release-msvc" CONFIG_NAME="Release" TOOLCHAIN_NAME="Visual Studio" />
     </configurations>
   </component>
 </project>
