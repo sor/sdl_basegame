@@ -10,7 +10,7 @@ void SortState::Init()
 	}
 
 	float iter = 0;
-	const float y_center = game.GetWindowSize().y / 2;
+	const float y_center = (float)game.GetWindowSize().y / 2.0f;
 
 	balls.resize( 1000 );
 	for( Ball & ball : balls )
@@ -67,7 +67,7 @@ void SortState::Render( const u32 frame, const u32 totalMSec, const float deltaT
 
 	for( Ball & ball : balls )
 	{
-		const int size = ball.z * 80.f + 48.f;
+		const u8 size = (u8)((float)ball.z * 80.f + 48.f);
 		if( isDarkened )
 			SDL_SetTextureColorMod( image, size * 2 - 20, size * 2 - 20, size * 2 - 20 );
 		Rect dst_rect { (int)ball.x - (size / 2), (int)ball.y - (size), size, size };

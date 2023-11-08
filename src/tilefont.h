@@ -569,7 +569,7 @@ inline void TF_RenderCenter( Renderer * renderer, Texture * texture, const Rect 
 	SDL_RenderCopy( renderer, texture, &src, &dst );
 }
 
-inline void TF_Render( Renderer * renderer, const String & text, const Rect & dimension, const Color & color )
+inline void TF_Render( Renderer * renderer, const String & text, const Rect & dimension, const Color & color, const Color & outlineColor = { 0, 0, 0 } )
 {
 	constexpr u8 ligatureLevel = 25; // 0 off, 9 only ffi, 25 acst
 	constexpr u8 overlap_mul = 4;
@@ -579,7 +579,7 @@ inline void TF_Render( Renderer * renderer, const String & text, const Rect & di
 	constexpr Point tilesize = { 16, 16 };
 
 	SDL_SetTextureAlphaMod( tiles, 127 );
-	SDL_SetTextureColorMod( tiles, 0, 0, 0 );
+	SDL_SetTextureColorMod( tiles, outlineColor.r, outlineColor.g, outlineColor.b );
 	TF_RenderSingle( renderer, tiles, text, dimension, ligatureLevel, spacing, tilesize, TF_RenderOutline );
 
 	SDL_SetTextureAlphaMod( tiles, SDL_ALPHA_OPAQUE );

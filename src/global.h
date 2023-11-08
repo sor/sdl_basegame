@@ -37,11 +37,7 @@
 //#include <imgui_impl_opengl3.h>
 #endif
 
-#include <SDL_stdinc.h>
-#include <SDL_error.h>
-#include <SDL_events.h>
-#include <SDL_render.h>
-#include <SDL_video.h>
+#include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
@@ -124,9 +120,9 @@ using fmt::print, fmt::println, fmt::format;
 #endif
 
 #ifdef FINAL
-#define BasePath ""             // Put the binary in the root folder, parallel to assets/
+#define BasePath ""             // Put the binaries in the root folder, parallel to assets/
 #else
-#define BasePath "../../../"    //    out/build/${architecture}-${configuration}
+#define BasePath "../../../../"    //    out/build/${architecture}-${configuration}
                                 // OR build/${configuration}-${compiler}/bin
 #endif
 

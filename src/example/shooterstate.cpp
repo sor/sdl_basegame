@@ -432,11 +432,11 @@ void ShooterState::SpawnEnemyProjectile( const FPoint pos )
 	}
 	else
 	{
-		const uint oldCapa = enemyProjectiles.capacity();
+		const usize oldCapa = enemyProjectiles.capacity();
 
 		enemyProjectiles.push_back( pos );
 
-		const uint newCapa = enemyProjectiles.capacity();
+		const usize newCapa = enemyProjectiles.capacity();
 
 		// Determine if iterators were invalidated
 		if( oldCapa != newCapa ) [[unlikely]]
@@ -468,11 +468,11 @@ void ShooterState::SpawnMyProjectile( const FPoint pos )
 	}
 	else
 	{
-		const uint oldCapa = myProjectiles.capacity();
+		const usize oldCapa = myProjectiles.capacity();
 
 		myProjectiles.push_back( pos );
 
-		const uint newCapa = myProjectiles.capacity();
+		const usize newCapa = myProjectiles.capacity();
 
 		// Determine if iterators were invalidated
 		if( oldCapa != newCapa ) [[unlikely]]

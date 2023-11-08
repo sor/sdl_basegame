@@ -6,18 +6,18 @@ set( CMAKE_CXX_STANDARD 20 )
 
 set(      VCPKG_VERBOSE                 OFF )
 set(      VCPKG_BOOTSTRAP_OPTIONS       "-disableMetrics" )
-set(      VCPKG_INSTALL_OPTIONS         "--no-print-usage")                         # disable this line when adding new packages
-set(      VCPKG_INSTALLED_DIR           ${CMAKE_SOURCE_DIR}/build/vcpkg_installed ) # comment this out to have a vcpkg_installed per build target
+set(      VCPKG_INSTALL_OPTIONS         "--no-print-usage")                             # disable this line when adding new packages
+set(      VCPKG_INSTALLED_DIR           ${CMAKE_SOURCE_DIR}/out/build/vcpkg_installed ) # comment this out to have a vcpkg_installed per build target
 set(      VCPKG_DISABLE_METRICS         1 )
 set( $ENV{VCPKG_DISABLE_METRICS}        1 )
 set(      DOTNET_CLI_TELEMETRY_OPTOUT   1 )
 set( $ENV{DOTNET_CLI_TELEMETRY_OPTOUT}  1 )
 set(      FMT_HEADER_ONLY               1 )
 
-if( NOT MSVC )
+#if( NOT MSVC )
     # I might later rework MSVC paths, to align with the adjusted CLion paths
     set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
-endif()
+#endif()
 
 # Add path of current cmake(.exe) to PATH
 cmake_path( GET CMAKE_COMMAND PARENT_PATH CMAKE_COMMAND_PATH )
@@ -28,8 +28,8 @@ else()
 endif()
 
 get_filename_component( OUTSIDE_VCPKG_DIR "${CMAKE_SOURCE_DIR}/../vcpkg/" ABSOLUTE )
-set( OUTSIDE_VCPKG_DIR "${OUTSIDE_VCPKG_DIR}"             CACHE PATH "Location of the outside vcpkg" )
-set( INSIDE_VCPKG_DIR  "${CMAKE_SOURCE_DIR}/build/vcpkg/" CACHE PATH "Location of the inside vcpkg" )
+set( OUTSIDE_VCPKG_DIR "${OUTSIDE_VCPKG_DIR}"                 CACHE PATH "Location of the outside vcpkg" )
+set( INSIDE_VCPKG_DIR  "${CMAKE_SOURCE_DIR}/out/build/vcpkg/" CACHE PATH "Location of the inside vcpkg" )
 if( EXISTS "${OUTSIDE_VCPKG_DIR}" )
     option( OUTSIDE_VCPKG_USE "Use a vcpkg which is outside of this repo, in a parallel folder" ON )
     if( OUTSIDE_VCPKG_USE )
@@ -150,6 +150,7 @@ else()
         set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           ${OpenMP_C_FLAGS}"   )
         set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         ${OpenMP_CXX_FLAGS}" )
     else()
+        # silence unknown OpenMP pragmas
         set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}           -Wno-unknown-pragmas" )
         set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}         -Wno-unknown-pragmas" )
     endif()
@@ -191,7 +192,10 @@ add_executable( sdl_basegame
         src/example/plasmastate.cpp
         src/example/shooterstate.cpp
         src/example/sortstate.cpp
-        src/tilefont.h src/tilefont.h src/tiles.h src/collider.h src/example/mapeditor.cpp )
+        src/tilefont.h
+        src/tiles.h
+        src/collider.h
+        src/example/mapeditor.cpp )
 
 if(  )
 

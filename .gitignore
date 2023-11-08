@@ -265,5 +265,4 @@ __pycache__/
 Thumbs.db
 cmake-build-*/
 out/build/
-build/
 vcpkg.lock

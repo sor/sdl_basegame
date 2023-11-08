@@ -8,19 +8,16 @@ class GameState;
 class Game
 {
 protected:
-	Window   * window;
-	Renderer * renderer;
-
-	bool isRunning        = true;
-	u32  framesSinceStart = 0;
-
-	int currentStateIdx = -1;
-	int nextStateIdx    = -1;
-
+	Window    *         window;
+	Renderer  *         renderer;
 	GameState *         currentState = nullptr;
 	Vector<GameState *> allStates;
 
-	Point windowSize;
+	Point windowSize       = { 1, 1 };
+	u32   framesSinceStart = 0;
+	int   currentStateIdx  = -1;
+	int   nextStateIdx     = -1;
+	bool  isRunning        = true;
 
 public:
 	[[nodiscard]]       bool    IsRunning()     const { return isRunning; }

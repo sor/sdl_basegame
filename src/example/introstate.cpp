@@ -160,6 +160,7 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 
 		static Point p{ 32, 50 };
 		static int colorIndex = 9;
+		static bool isDarkOutline = true;
 
 #ifdef IMGUI
 		//ImGuiOnly(
@@ -174,13 +175,14 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 			if( ImGui::SliderInt( "int", &p.x, 0, 320 ) && auto_update )
 				blendedText = nullptr;
 
-			ImGui::Checkbox( "Auto-Redraw", &auto_update );      // Edit bools storing our window open/close state
+			ImGui::Checkbox( "Auto-Redraw", &auto_update );
+			ImGui::Checkbox( "Dark Outline", &isDarkOutline );
 
 			if( ImGui::Button( "Redraw" ) )                            // Buttons return true when clicked (most widgets return true when edited/activated)
 				blendedText = nullptr;
 
 			if( ImGui::SliderInt( "color index", &colorIndex, 0, 63 ) )
-				asm("NOP");
+			{}
 
 			ImGui::Checkbox( "Draw Color Number", &drawColorNumber );
 
@@ -188,12 +190,17 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 			ImGui::PushStyleVar( ImGuiStyleVar_FrameBorderSize, 1);
 			// CARE: ImU32 as color is 0xAABBGGRR - opposite of what might be expected
 			ImGui::PushStyleColor( ImGuiCol_Border, 0xAAFFFFFF );
-			const fmt::format_string<int> fmt = drawColorNumber
-			                                    ? fmt::format_string<int>( "{:02}" )
-			                                    : fmt::format_string<int>( "  ##{:02}" );
+			constexpr fmt::format_string<int>
+				withNumber   ( "{:02}" ),
+				withoutNumber( "  ##{:02}" );
+			const fmt::format_string<int> & fmt = drawColorNumber
+				? withNumber
+				: withoutNumber;
 			for( int i = 0; i < 64; ++i )
 			{
-				ImU32 pcol = std::bit_cast<ImU32>( sor::hsnr64::Palette[i] );
+				const SDL_Color & color = sor::hsnr64::Palette[i];
+				const ImU32       pcol  = color.r | color.g << 8 | color.b << 16 | color.a << 24;
+				//const ImU32 pcol = std::bit_cast<ImU32>( sor::hsnr64::Palette[i] );
 				//Color color = sor::hsnr64::Palette[i];
 				ImGui::PushStyleColor( ImGuiCol_Button, pcol );
 				ImGui::PushStyleColor( ImGuiCol_Text, pcol ^ 0x00808080 );
@@ -224,41 +231,47 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 		//)
 #endif
 
-		// Comment out to disable the cache. Uses 5ms without / 20 ms with harfbuzz
-		if( blendedText == nullptr )
-		{
-			if( blendedText != nullptr )
-				SDL_DestroyTexture( blendedText );
-
-			Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, winSize.x - p.x );
-			blendedText = SDL_CreateTextureFromSurface( renderer, surf );
-			SDL_FreeSurface( surf );
-
-			u32 fmt;
-			int access;
-			SDL_QueryTexture( blendedText, &fmt, &access, &blendedTextSize.x, &blendedTextSize.y );
-		}
+		const Color outlineColor = isDarkOutline ? Color{ 0, 0, 0 } : Color{ 255, 255, 255 };
 
 		// Draw the text on top
+		// textmode == 0 is True Type (currently cached)
+		// textmode == 1 is Bitmap Font (currently uncached)
 		if( textmode == 0 )
 		{
-			SDL_SetTextureColorMod( blendedText, 0, 0, 0 );
+			// Comment out to disable the cache. Uses 5ms without / 20 ms with harfbuzz
+			if (blendedText == nullptr)
+			{
+				if (blendedText != nullptr)
+					SDL_DestroyTexture(blendedText);
+
+				Surface* surf = TTF_RenderUTF8_Blended_Wrapped(font, text, white, winSize.x - p.x);
+				blendedText = SDL_CreateTextureFromSurface(renderer, surf);
+				SDL_FreeSurface(surf);
+
+				u32 fmt;
+				int access;
+				SDL_QueryTexture(blendedText, &fmt, &access, &blendedTextSize.x, &blendedTextSize.y);
+			}
+
+			SDL_SetTextureColorMod( blendedText, outlineColor.r, outlineColor.g, outlineColor.b);
+
 			for( const Point & pd : shadowOffsets )
 			{
 				const Rect dst_rect = Rect{ p.x + pd.x, p.y + pd.y, blendedTextSize.x, blendedTextSize.y };
 				SDL_RenderCopy( renderer, blendedText, EntireRect, &dst_rect );
 			}
 
-			SDL_SetTextureColorMod( blendedText, 255, 255, 255 );
+			const Color color = sor::hsnr64::Palette[colorIndex];
+			SDL_SetTextureColorMod( blendedText, color.r, color.g, color.b );
 			const Rect dst_rect = { p.x, p.y, blendedTextSize.x, blendedTextSize.y };
 			SDL_RenderCopy( renderer, blendedText, EntireRect, &dst_rect );
 		}
 		else
 		{
 			TF_Init( renderer );
-
+			
 			Rect dimension { p.x, p.y, winSize.x - (32+p.x), 9999 };
-			TF_Render( renderer, text, dimension, sor::hsnr64::Palette[colorIndex] );
+			TF_Render( renderer, text, dimension, sor::hsnr64::Palette[colorIndex], outlineColor );
 		}
 	}
 }

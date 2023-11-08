@@ -114,7 +114,7 @@ void Game::Input()
 
 void Game::Update( const u64 msSinceStart, const float deltaT )
 {
-	currentState->Update( framesSinceStart, msSinceStart, deltaT );
+	currentState->Update( framesSinceStart, (u32)msSinceStart, deltaT );
 }
 
 void Game::Render( const u64 msSinceStart, const float deltaTNeeded )
@@ -131,7 +131,7 @@ void Game::Render( const u64 msSinceStart, const float deltaTNeeded )
 		ImGui::NewFrame();
 	)
 
-	currentState->Render( framesSinceStart, msSinceStart, deltaTNeeded );
+	currentState->Render( framesSinceStart, (u32)msSinceStart, deltaTNeeded );
 
 	ImGuiOnly(
 		SDL_ImGui_Frame( renderer, window );
