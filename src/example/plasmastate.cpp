@@ -98,6 +98,8 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 		SDL_RenderCopy( renderer, plasmaTex, EntireRect, &dst_rect );
 	}
 
+	const Point & winSize = GetGame().GetWindowSize();
+
 	// Prepare the text as Texture
 	if( blendedText == nullptr )
 	{
@@ -109,7 +111,6 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 		if( blendedText != nullptr )
 			SDL_DestroyTexture( blendedText );
 
-		const Point & winSize = game.GetWindowSize();
 		Surface * surf = TTF_RenderUTF8_Blended_Wrapped( font, text, white, winSize.x - 30 );
 		blendedText = SDL_CreateTextureFromSurface( renderer, surf );
 		SDL_FreeSurface( surf );
@@ -122,8 +123,8 @@ void PlasmaState::Render( const u32 frame, const u32 totalMSec, const float delt
 	// Draw the text on top
 	{
 		const Point p {
-			game.GetWindowSize().x / 5,
-			game.GetWindowSize().y - 150
+			winSize.x / 5,
+			winSize.y - 150
 		};
 
 		SDL_SetTextureColorMod( blendedText, 0, 0, 0 );

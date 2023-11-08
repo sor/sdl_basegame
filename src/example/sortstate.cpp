@@ -70,7 +70,7 @@ void SortState::Render( const u32 frame, const u32 totalMSec, const float deltaT
 		const u8 size = (u8)((float)ball.z * 80.f + 48.f);
 		if( isDarkened )
 			SDL_SetTextureColorMod( image, size * 2 - 20, size * 2 - 20, size * 2 - 20 );
-		Rect dst_rect { (int)ball.x - (size / 2), (int)ball.y - (size), size, size };
+		const Rect dst_rect { (int)ball.x - (size / 2), (int)ball.y - (size), size, size };
 		SDL_RenderCopy( renderer, image, EntireRect, &dst_rect );
 	}
 }

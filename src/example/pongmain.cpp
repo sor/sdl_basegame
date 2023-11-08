@@ -6,7 +6,7 @@ int mainx( int argc, char * argv [] )
 {
 	SDL_Init( SDL_INIT_EVERYTHING );
 
-	SDL_Window   * window   = SDL_CreateWindow( "Game", 0, 0, 640, 480, SDL_WINDOW_OPENGL );
+	SDL_Window   * window   = SDL_CreateWindow( "Game", 50, 100, 640, 480, SDL_WINDOW_OPENGL );
 	SDL_Renderer * renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_PRESENTVSYNC );
 
 	SDL_Rect ball  = { 200, 220, 20, 20 };

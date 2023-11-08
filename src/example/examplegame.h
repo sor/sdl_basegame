@@ -23,7 +23,16 @@ public:
 	bool HandleEvent( const Event & event ) override;
 };
 
-class IntroState : public GameState
+class ExampleGameState : public GameState
+{
+public:
+	[[nodiscard]] ExampleGame & GetGame() const override { return dynamic_cast<ExampleGame &>( GameState::GetGame() ); }
+
+	// ctor
+	using GameState::GameState;
+};
+
+class IntroState : public ExampleGameState
 {
 protected:
 	Font    * font              = nullptr;
@@ -60,7 +69,7 @@ protected:
 
 public:
 	// ctor
-	using GameState::GameState;
+	using ExampleGameState::ExampleGameState;
 
 	void Init() override;
 	void UnInit() override;
@@ -94,7 +103,7 @@ public:
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
 
-class SortState : public GameState
+class SortState : public ExampleGameState
 {
 protected:
 	struct Ball { float x,y,z,w; };
@@ -107,7 +116,7 @@ protected:
 
 public:
 	// ctor
-	using GameState::GameState;
+	using ExampleGameState::ExampleGameState;
 
 	void Init() override;
 	void UnInit() override;
@@ -117,7 +126,7 @@ public:
 	void Render( const u32 frame, const u32 totalMSec, const float deltaT ) override;
 };
 
-class CameraState : public GameState
+class CameraState : public ExampleGameState
 {
 protected:
 	Texture *    bg[4]      = { nullptr };
@@ -151,7 +160,7 @@ protected:
 
 public:
 	// ctor
-	using GameState::GameState;
+	using ExampleGameState::ExampleGameState;
 
 	void Init() override;
 	void UnInit() override;
@@ -217,7 +226,7 @@ public:
 	void RetireMyProjectile(const Vector<FPoint>::iterator & it );
 };
 
-class MapEditorState : public GameState
+class MapEditorState : public ExampleGameState
 {
 protected:
 	TileSet tileSet;
@@ -255,7 +264,7 @@ protected:
 
 public:
 	// ctor
-	using GameState::GameState;
+	using ExampleGameState::ExampleGameState;
 
 	void Init() override;
 	void UnInit() override;

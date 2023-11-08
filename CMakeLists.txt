@@ -197,19 +197,18 @@ add_executable( sdl_basegame
         src/collider.h
         src/example/mapeditor.cpp )
 
-if(  )
-
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    message(STATUS "IPO / LTO disabled")
+elseif (CMAKE_BUILD_TYPE MATCHES Release)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT supported OUTPUT error)
+    if( supported )
+        message(STATUS "IPO / LTO enabled")
+        set_property(TARGET sdl_basegame PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(STATUS "IPO / LTO not supported: <${error}>")
+    endif()
 endif()
-
-include(CheckIPOSupported)
-check_ipo_supported(RESULT supported OUTPUT error)
-if( supported )
-    message(STATUS "IPO / LTO enabled")
-    set_property(TARGET sdl_basegame PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-else()
-    message(STATUS "IPO / LTO not supported: <${error}>")
-endif()
-
 
 # imgui comment out for vcpkg.json
 # ], "$disabled_dependencies":[{"blah":"delete this whole line to enable dear imgui"}

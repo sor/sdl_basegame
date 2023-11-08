@@ -78,9 +78,11 @@ protected:
 	Renderer * renderer;
 
 public:
-	[[nodiscard]] virtual bool  IsFPSLimited()  const { return true; }
-	[[nodiscard]] virtual Color GetClearColor() const { return Color { 0, 0, 0, SDL_ALPHA_OPAQUE }; }
+	[[nodiscard]] virtual Game & GetGame()       const { return game; }
+	[[nodiscard]] virtual bool   IsFPSLimited()  const { return true; }
+	[[nodiscard]] virtual Color  GetClearColor() const { return Color { 0, 0, 0, SDL_ALPHA_OPAQUE }; }
 
+	// ctor
 	explicit GameState( Game && game_, Renderer * render_ ) = delete; // prevent taking an rvalue
 	explicit GameState( Game &  game_, Renderer * render_ )
 		: game( game_ ),
@@ -90,7 +92,7 @@ public:
 	GameState(                    GameState && ) = delete;
 	GameState &  operator=( const GameState &  ) = delete;
 	GameState && operator=(       GameState && ) = delete;
-    virtual ~GameState() = default;
+	virtual ~GameState() = default;
 
 	virtual void Init() {}
 	virtual void UnInit() {}

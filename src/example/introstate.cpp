@@ -125,6 +125,9 @@ void IntroState::Render( const u32 frame, const u32 totalMSec, const float delta
 {
 	const Point & winSize = game.GetWindowSize();
 
+	// Just here to show how to access the specific Game instance
+	ExampleGame & game = GetGame();
+
 	{
 		const Rect dst_rect { 0, 0, winSize.x, winSize.y };
 		SDL_RenderCopy( renderer, image, EntireRect, &dst_rect /* same result as EntireRect */ );
